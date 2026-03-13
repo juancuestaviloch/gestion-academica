@@ -4,6 +4,7 @@ export interface Horario {
   diaSemana: string;
   horaInicio: string;
   horaFin: string;
+  aula?: string | null;
 }
 
 export interface Bibliografia {
@@ -136,6 +137,7 @@ export interface CalendarEvent {
   type: 'clase' | 'examen' | 'tarea' | 'evento';
   time?: string;
   isParo?: boolean;
+  aula?: string | null;
 }
 
 export interface Video {

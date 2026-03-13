@@ -58,6 +58,7 @@ export default function Calendario() {
               color: m.color,
               type: 'clase',
               time: `${h.horaInicio} - ${h.horaFin}`,
+              aula: h.aula,
             });
           }
           d.setDate(d.getDate() + 1);
@@ -302,7 +303,14 @@ export default function Calendario() {
                 <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: ev.color }} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{ev.title}</p>
-                  {ev.time && <p className="text-xs text-gray-500">{ev.time}</p>}
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {ev.time && <p className="text-xs text-gray-500">{ev.time}</p>}
+                    {ev.aula && (
+                      <span className="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded font-medium border border-gray-300">
+                        📍 {ev.aula}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   ev.type === 'clase' ? 'bg-blue-100 text-blue-700' :

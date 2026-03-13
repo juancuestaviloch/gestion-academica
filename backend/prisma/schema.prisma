@@ -31,6 +31,7 @@ model Horario {
   diaSemana  String // Lunes | Martes | Miércoles | Jueves | Viernes | Sábado
   horaInicio String // "08:00"
   horaFin    String // "10:00"
+  aula       String? // Optional field to store classroom/building
   materia    Materia @relation(fields: [materiaId], references: [id], onDelete: Cascade)
 }
 
@@ -74,15 +75,16 @@ model Asistencia {
 }
 
 model Apunte {
-  id        Int      @id @default(autoincrement())
-  materiaId Int
-  titulo    String
-  contenido String?
-  tipo      String   @default("nota") // nota | link | archivo
-  url       String?
-  materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  materiaId  Int
+  titulo     String
+  contenido  String?
+  tipo       String   @default("nota") // nota | link | archivo
+  url        String?
+  canvasData String? // Holds serialized JSON for the infinite whiteboard
+  materia    Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Evento {

@@ -23,7 +23,7 @@ export default function Materias() {
     profesor: '',
     estado: 'Cursando' as string,
     color: '#4F46E5',
-    horarios: [] as { diaSemana: string; horaInicio: string; horaFin: string }[],
+    horarios: [] as { diaSemana: string; horaInicio: string; horaFin: string; aula: string }[],
     bibliografia: [] as { nombre: string; url: string }[],
   });
 
@@ -52,7 +52,7 @@ export default function Materias() {
       profesor: m.profesor,
       estado: m.estado,
       color: m.color,
-      horarios: m.horarios.map((h) => ({ diaSemana: h.diaSemana, horaInicio: h.horaInicio, horaFin: h.horaFin })),
+      horarios: m.horarios.map((h) => ({ diaSemana: h.diaSemana, horaInicio: h.horaInicio, horaFin: h.horaFin, aula: h.aula || '' })),
       bibliografia: m.bibliografia.map((b) => ({ nombre: b.nombre, url: b.url || '' })),
     });
     setModalOpen(true);
@@ -77,7 +77,7 @@ export default function Materias() {
   };
 
   const addHorario = () => {
-    setForm({ ...form, horarios: [...form.horarios, { diaSemana: 'Lunes', horaInicio: '08:00', horaFin: '10:00' }] });
+    setForm({ ...form, horarios: [...form.horarios, { diaSemana: 'Lunes', horaInicio: '08:00', horaFin: '10:00', aula: '' }] });
   };
 
   const removeHorario = (i: number) => {
@@ -163,6 +163,7 @@ export default function Materias() {
                     >
                       <Clock className="w-3 h-3" />
                       {h.diaSemana} {h.horaInicio}-{h.horaFin}
+                      {h.aula && <span className="ml-1 text-[10px] bg-gray-200 px-1 rounded">📍 {h.aula}</span>}
                     </span>
                   ))}
                 </div>
@@ -285,7 +286,10 @@ export default function Materias() {
                   className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500" />
                 <span className="text-gray-400 text-sm">a</span>
                 <input type="time" value={h.horaFin} onChange={(e) => updateHorario(i, 'horaFin', e.target.value)}
-                  className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500" />
+                  className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500 w-24" />
+                <input type="text" value={h.aula} onChange={(e) => updateHorario(i, 'aula', e.target.value)}
+                  placeholder="Aula (ej. Magister)"
+                  className="flex-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-500 min-w-[100px]" />
                 <button type="button" onClick={() => removeHorario(i)} className="text-red-400 hover:text-red-600">
                   <Trash2 className="w-4 h-4" />
                 </button>
