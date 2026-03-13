@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   GraduationCap,
+  PlaySquare,
 } from 'lucide-react';
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { path: '/tareas', label: 'Tareas', icon: CheckSquare },
   { path: '/asistencia', label: 'Asistencia', icon: UserCheck },
   { path: '/apuntes', label: 'Apuntes', icon: StickyNote },
+  { path: '/videos', label: 'Videos', icon: PlaySquare },
   { path: '/metas', label: 'Metas', icon: Target },
 ];
 
@@ -91,12 +93,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Footer sidebar */}
         <div className="px-4 py-4 border-t border-white/10">
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-primary-400 flex items-center justify-center text-white text-sm font-bold">
-              E
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-indigo-600 flex flex-col items-center justify-center text-white text-sm font-bold shadow-md shadow-black/20">
+              JC
             </div>
             <div>
-              <p className="text-white text-sm font-medium">Estudiante</p>
-              <p className="text-primary-300 text-xs">1er Cuatrimestre 2026</p>
+              <p className="text-white text-sm font-semibold truncate max-w-[150px]" title="Juan José Cuesta Viloch">Juan José</p>
+              <p className="text-primary-300 text-xs truncate max-w-[150px]" title="Licenciatura en Administración">Lic. en Administración</p>
             </div>
           </div>
         </div>

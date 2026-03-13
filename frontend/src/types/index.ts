@@ -115,6 +115,7 @@ export interface DashboardData {
   examenesProximos: Examen[];
   tareasUrgentes: Tarea[];
   eventosHoy: Evento[];
+  videosPendientes: Video[];
   estadisticas: {
     totalMaterias: number;
     materiasCursando: number;
@@ -133,4 +134,15 @@ export interface CalendarEvent {
   color: string;
   type: 'clase' | 'examen' | 'tarea' | 'evento';
   time?: string;
+}
+
+export interface Video {
+  id: number;
+  materiaId: number;
+  titulo: string;
+  url: string;
+  duracion?: string | null;
+  visto: boolean;
+  createdAt: string;
+  materia: { id: number; nombre: string; color: string };
 }

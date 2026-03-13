@@ -7,6 +7,7 @@ import Examenes from './pages/Examenes';
 import Tareas from './pages/Tareas';
 import Asistencia from './pages/Asistencia';
 import Apuntes from './pages/Apuntes';
+import Videos from './pages/Videos';
 import Metas from './pages/Metas';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/tareas" element={<Tareas />} />
           <Route path="/asistencia" element={<Asistencia />} />
           <Route path="/apuntes" element={<Apuntes />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/metas" element={<Metas />} />
         </Routes>
       </Layout>

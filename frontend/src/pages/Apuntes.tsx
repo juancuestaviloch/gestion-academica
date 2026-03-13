@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Search, FileText, Link as LinkIcon, StickyNote } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, FileText, Link as LinkIcon, StickyNote, Download, CheckCircle2 } from 'lucide-react';
 import { apuntesAPI, materiasAPI } from '../api';
 import { Apunte, Materia } from '../types';
 import Modal from '../components/Modal';
@@ -21,6 +21,8 @@ export default function Apuntes() {
   const [filtroMateria, setFiltroMateria] = useState<number | ''>('');
   const [busqueda, setBusqueda] = useState('');
   const [form, setForm] = useState({ materiaId: 0, titulo: '', contenido: '', tipo: 'nota' as string, url: '' });
+  const [downloading, setDownloading] = useState<number | null>(null);
+  const [downloadSuccess, setDownloadSuccess] = useState<number | null>(null);
 
   const fetchData = async () => {
     const [a, m] = await Promise.all([
@@ -41,6 +43,16 @@ export default function Apuntes() {
   const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (editando) await apuntesAPI.update(editando.id, form); else await apuntesAPI.create(form); setModalOpen(false); fetchData(); };
 
   const handleDelete = async (id: number) => { if (!confirm('¿Eliminar?')) return; await apuntesAPI.delete(id); fetchData(); };
+
+  const handleDownload = (apunte: Apunte) => {
+    setDownloading(apunte.id);
+    // Simular descarga de 1.5s
+    setTimeout(() => {
+      setDownloading(null);
+      setDownloadSuccess(apunte.id);
+      setTimeout(() => setDownloadSuccess(null), 3000);
+    }, 1500);
+  };
 
   function renderMd(t: string) { return t.replace(/^### (.+)$/gm,'<h3>$1</h3>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/^# (.+)$/gm,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/^\- (.+)$/gm,'<li>$1</li>').replace(/\n/g,'<br/>'); }
 
@@ -93,7 +105,41 @@ export default function Apuntes() {
       <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={viewing?.titulo || ''} size="lg">
         {viewing && <div>
           <div className="flex items-center gap-2 mb-4"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: viewing.materia.color }} /><span className="text-sm text-gray-500">{viewing.materia.nombre}</span></div>
-          {viewing.url && <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 hover:underline mb-4 block">🔗 {viewing.url}</a>}
+          
+          {viewing.tipo === 'archivo' && (
+            <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900 text-sm">Documento Adjunto</h4>
+                  <p className="text-xs text-gray-500">Haz clic para descargar a tu dispositivo</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleDownload(viewing)}
+                disabled={downloading === viewing.id || downloadSuccess === viewing.id}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  downloadSuccess === viewing.id
+                    ? 'bg-green-100 text-green-700'
+                    : downloading === viewing.id
+                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    : 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm'
+                }`}
+              >
+                {downloadSuccess === viewing.id ? (
+                  <><CheckCircle2 className="w-4 h-4" /> ¡Descargado!</>
+                ) : downloading === viewing.id ? (
+                  <><div className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" /> Descargando...</>
+                ) : (
+                  <><Download className="w-4 h-4" /> Descargar Material</>
+                )}
+              </button>
+            </div>
+          )}
+
+          {viewing.url && viewing.tipo !== 'archivo' && <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 hover:underline mb-4 block">🔗 {viewing.url}</a>}
           {viewing.contenido && <div className="markdown-content" dangerouslySetInnerHTML={{ __html: renderMd(viewing.contenido) }} />}
         </div>}
       </Modal>

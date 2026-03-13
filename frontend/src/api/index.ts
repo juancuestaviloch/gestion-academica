@@ -7,7 +7,7 @@
 // llamadas reales a la API.
 // ============================================================
 
-import { Materia, Examen, Tarea, Asistencia, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData } from '../types';
+import { Materia, Examen, Tarea, Asistencia, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video } from '../types';
 
 // Helper para fechas relativas
 function addDays(days: number): Date {
@@ -101,6 +101,13 @@ let EVENTOS: Evento[] = [
   { id: 1, titulo: 'Paro docente - Semana del 16 al 20', fecha: addDays(3).toISOString(), descripcion: 'Adhesión parcial. Matemática Com 4 tiene clases el lunes.', color: '#EF4444', createdAt: '' },
   { id: 2, titulo: 'Inicio cursada Intro Economía', fecha: addDays(11).toISOString(), descripcion: 'Primera clase de Teoría con A. Giudice (pospuesta una semana por el paro).', color: '#4F46E5', createdAt: '' },
   { id: 3, titulo: 'Cierre Cuestionario TIVU', fecha: addDays(0).toISOString(), descripcion: 'Fecha límite para entregar evaluación del TIVU', color: '#D97706', createdAt: '' },
+];
+
+// ===================== VIDEOS =====================
+let VIDEOS: Video[] = [
+  { id: 1, materiaId: 2, titulo: 'Clase 1: Sucesiones', url: 'https://youtube.com/watch?v=placeholder1', duracion: '1h 20m', visto: false, createdAt: new Date().toISOString(), materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 2, materiaId: 2, titulo: 'Clase 2: Series', url: 'https://youtube.com/watch?v=placeholder2', duracion: '1h 45m', visto: false, createdAt: new Date().toISOString(), materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 3, materiaId: 1, titulo: 'Unidad 1 - Clase Teórica', url: 'https://youtube.com/watch?v=placeholder3', duracion: '55m', visto: true, createdAt: new Date().toISOString(), materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
 ];
 
 // ===================== METAS =====================
@@ -206,11 +213,26 @@ export const metasAPI = {
   delete: async (id: number): Promise<void> => { await delay(); METAS = METAS.filter((m) => m.id !== id); },
 };
 
+
 export const eventosAPI = {
   getAll: async (): Promise<Evento[]> => { await delay(); return [...EVENTOS].sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()); },
   create: async (data: any): Promise<Evento> => { await delay(); const e: Evento = { id: uid(), titulo: data.titulo, fecha: data.fecha, descripcion: data.descripcion || null, color: data.color || '#6366F1', createdAt: new Date().toISOString() }; EVENTOS = [...EVENTOS, e]; return e; },
   update: async (id: number, data: any): Promise<Evento> => { await delay(); EVENTOS = EVENTOS.map((e) => e.id === id ? { ...e, ...data } : e); return EVENTOS.find((e) => e.id === id)!; },
   delete: async (id: number): Promise<void> => { await delay(); EVENTOS = EVENTOS.filter((e) => e.id !== id); },
+};
+
+export const videosAPI = {
+  getAll: async (params?: { materiaId?: number; soloPendientes?: boolean }): Promise<Video[]> => {
+    await delay(); let r = [...VIDEOS];
+    if (params?.materiaId) r = r.filter((v) => v.materiaId === params.materiaId);
+    if (params?.soloPendientes) r = r.filter((v) => !v.visto);
+    return r.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+  },
+  getById: async (id: number): Promise<Video> => { await delay(); return VIDEOS.find((v) => v.id === id)!; },
+  create: async (data: any): Promise<Video> => { await delay(); const v: Video = { id: uid(), materiaId: data.materiaId, titulo: data.titulo, url: data.url, duracion: data.duracion || null, visto: data.visto || false, createdAt: new Date().toISOString(), materia: getMateriaRef(data.materiaId) }; VIDEOS = [...VIDEOS, v]; return v; },
+  update: async (id: number, data: any): Promise<Video> => { await delay(); VIDEOS = VIDEOS.map((v) => v.id === id ? { ...v, ...data, materia: getMateriaRef(data.materiaId || v.materiaId) } : v); return VIDEOS.find((v) => v.id === id)!; },
+  toggleVisto: async (id: number): Promise<Video> => { await delay(); const v = VIDEOS.find(x => x.id === id); if(v) v.visto = !v.visto; return v!; },
+  delete: async (id: number): Promise<void> => { await delay(); VIDEOS = VIDEOS.filter((v) => v.id !== id); },
 };
 
 export const dashboardAPI = {
@@ -229,6 +251,7 @@ export const dashboardAPI = {
 
     const examenesProximos = EXAMENES.filter((e) => new Date(e.fecha) >= now && new Date(e.fecha) <= in7Days).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
     const tareasUrgentes = TAREAS.filter((t) => ['Pendiente', 'En progreso'].includes(t.estado) && new Date(t.fechaLimite) >= now).sort((a, b) => new Date(a.fechaLimite).getTime() - new Date(b.fechaLimite).getTime()).slice(0, 5);
+    const videosPendientes = VIDEOS.filter(v => !v.visto).slice(0, 3);
 
     const totalMaterias = MATERIAS.length;
     const materiasCursando = MATERIAS.filter((m) => m.estado === 'Cursando').length;
@@ -242,6 +265,6 @@ export const dashboardAPI = {
     const todayStr = now.toISOString().slice(0, 10);
     const eventosHoy = EVENTOS.filter((e) => e.fecha.slice(0, 10) === todayStr);
 
-    return { clasesHoy, examenesProximos, tareasUrgentes, eventosHoy, estadisticas: { totalMaterias, materiasCursando, materiasAprobadas, materiasPendientes, totalTareas, tareasEntregadas, asistenciaPromedio } };
+    return { clasesHoy, examenesProximos, tareasUrgentes, eventosHoy, videosPendientes, estadisticas: { totalMaterias, materiasCursando, materiasAprobadas, materiasPendientes, totalTareas, tareasEntregadas, asistenciaPromedio } };
   },
 };
