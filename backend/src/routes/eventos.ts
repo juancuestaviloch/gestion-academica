@@ -30,13 +30,14 @@ router.get('/', async (req, res) => {
 // Crear evento
 router.post('/', async (req, res) => {
   try {
-    const { titulo, fecha, descripcion, color } = req.body;
+    const { titulo, fecha, descripcion, color, esParo } = req.body;
     const evento = await prisma.evento.create({
       data: {
         titulo,
         fecha: new Date(fecha),
         descripcion,
         color: color || '#6366F1',
+        esParo: esParo || false,
       },
     });
     res.status(201).json(evento);
@@ -48,7 +49,7 @@ router.post('/', async (req, res) => {
 // Actualizar evento
 router.put('/:id', async (req, res) => {
   try {
-    const { titulo, fecha, descripcion, color } = req.body;
+    const { titulo, fecha, descripcion, color, esParo } = req.body;
     const evento = await prisma.evento.update({
       where: { id: parseInt(req.params.id) },
       data: {
@@ -56,6 +57,7 @@ router.put('/:id', async (req, res) => {
         fecha: fecha ? new Date(fecha) : undefined,
         descripcion,
         color,
+        esParo: esParo !== undefined ? esParo : undefined,
       },
     });
     res.json(evento);

@@ -137,7 +137,7 @@ export default function Materias() {
         {materias.map((m) => (
           <div
             key={m.id}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-primary-100 transition-all duration-300 cursor-pointer"
           >
             <div className="h-1.5" style={{ backgroundColor: m.color }} />
             <div className="p-5">

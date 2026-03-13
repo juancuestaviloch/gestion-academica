@@ -117,7 +117,7 @@ export default function Videos() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videosFiltrados.map((video) => (
-            <div key={video.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 flex flex-col h-full group">
+            <div key={video.id} className="bg-white rounded-xl shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full group">
               <div 
                 className="h-32 p-4 relative flex items-end"
                 style={{ backgroundColor: video.materia.color + '20' }}

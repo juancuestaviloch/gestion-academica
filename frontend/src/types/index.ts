@@ -91,6 +91,7 @@ export interface Evento {
   fecha: string;
   descripcion?: string | null;
   color: string;
+  esParo?: boolean;
   createdAt: string;
 }
 
@@ -134,6 +135,7 @@ export interface CalendarEvent {
   color: string;
   type: 'clase' | 'examen' | 'tarea' | 'evento';
   time?: string;
+  isParo?: boolean;
 }
 
 export interface Video {

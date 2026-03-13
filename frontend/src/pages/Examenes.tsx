@@ -119,7 +119,7 @@ export default function Examenes() {
           const pasado = new Date(examen.fecha) < new Date();
           return (
             <div key={examen.id}
-              className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md ${
+              className={`bg-white rounded-2xl border shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer ${
                 proximo ? 'border-amber-200 ring-1 ring-amber-100' : pasado ? 'border-gray-100 opacity-60' : 'border-gray-100'
               }`}>
               <div className="flex items-center">

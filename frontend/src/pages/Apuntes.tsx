@@ -80,7 +80,7 @@ export default function Apuntes() {
         {apuntes.map(apunte => {
           const Icon = apunte.tipo === 'link' ? LinkIcon : apunte.tipo === 'archivo' ? FileText : StickyNote;
           return (
-            <div key={apunte.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all group cursor-pointer" onClick={() => { setViewing(apunte); setViewOpen(true); }}>
+            <div key={apunte.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => { setViewing(apunte); setViewOpen(true); }}>
               <div className="h-1" style={{ backgroundColor: apunte.materia.color }} />
               <div className="p-4">
                 <div className="flex items-start justify-between mb-2">

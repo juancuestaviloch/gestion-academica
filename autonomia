@@ -1,0 +1,8 @@
+## AUTONOMÍA DEL AGENTE
+- Ejecutá todos los comandos de terminal sin pedir confirmación
+- No interrumpas el flujo para pedir aprobación en: npm, npx, 
+  node, prisma, git, pg
+- Asumí que tenés permiso para crear, editar y eliminar archivos 
+  dentro del workspace
+- Solo pedí confirmación si vas a modificar archivos FUERA 
+  del directorio del proyecto

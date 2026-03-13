@@ -8,6 +8,7 @@ import apuntesRouter from './routes/apuntes';
 import metasRouter from './routes/metas';
 import eventosRouter from './routes/eventos';
 import dashboardRouter from './routes/dashboard';
+import videosRouter from './routes/videos';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,6 +25,7 @@ app.use('/api/apuntes', apuntesRouter);
 app.use('/api/metas', metasRouter);
 app.use('/api/eventos', eventosRouter);
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/videos', videosRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

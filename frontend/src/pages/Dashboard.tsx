@@ -99,7 +99,7 @@ export default function Dashboard() {
               clasesHoy.map((clase, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-pointer"
                 >
                   <div
                     className="w-1 h-12 rounded-full shrink-0"
@@ -132,7 +132,7 @@ export default function Dashboard() {
               examenesProximos.map((examen) => (
                 <div
                   key={examen.id}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-pointer"
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
@@ -179,10 +179,10 @@ export default function Dashboard() {
                   return (
                     <div
                       key={tarea.id}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`p-4 rounded-xl border-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer ${
                         urgente
-                          ? 'border-red-200 bg-red-50'
-                          : 'border-gray-100 bg-gray-50 hover:border-primary-200'
+                          ? 'border-red-200 bg-red-50 hover:bg-red-100'
+                          : 'border-gray-100 bg-gray-50 hover:border-primary-300 hover:bg-white'
                       }`}
                     >
                       <div className="flex items-start gap-2 mb-2">
@@ -241,9 +241,9 @@ function StatCard({
   sub: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 group hover:-translate-y-1 hover:shadow-xl hover:border-primary-100 transition-all duration-300 cursor-pointer">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white`}>
+        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
           {icon}
         </div>
         <p className="text-sm text-gray-500 font-medium">{label}</p>

@@ -16,7 +16,7 @@ export default function Calendario() {
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [eventoForm, setEventoForm] = useState({ titulo: '', fecha: '', descripcion: '', color: '#6366F1' });
+  const [eventoForm, setEventoForm] = useState({ titulo: '', fecha: '', descripcion: '', color: '#6366F1', esParo: false });
 
   useEffect(() => {
     loadData();
@@ -93,8 +93,9 @@ export default function Calendario() {
         id: `evt-${e.id}`,
         title: e.titulo,
         date: new Date(e.fecha),
-        color: e.color,
+        color: e.esParo ? '#DC2626' : e.color,
         type: 'evento',
+        isParo: e.esParo,
       });
     });
 
@@ -133,7 +134,7 @@ export default function Calendario() {
     e.preventDefault();
     await eventosAPI.create(eventoForm);
     setModalOpen(false);
-    setEventoForm({ titulo: '', fecha: '', descripcion: '', color: '#6366F1' });
+    setEventoForm({ titulo: '', fecha: '', descripcion: '', color: '#6366F1', esParo: false });
     loadData();
   };
 
@@ -155,16 +156,21 @@ export default function Calendario() {
       const date = new Date(year, month, d);
       const dayEvents = getEventsForDate(date);
       const isToday = isSameDay(date, today);
+      const isStrikeDay = dayEvents.some(e => e.isParo);
 
       cells.push(
         <div
           key={d}
           onClick={() => { setSelectedDate(date); }}
-          className={`h-24 lg:h-28 border border-gray-100 p-1 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
-            isToday ? 'bg-primary-50 border-primary-200' : ''
+          className={`h-24 lg:h-28 border p-1 rounded-lg cursor-pointer transition-colors ${
+            isStrikeDay 
+              ? 'bg-red-50 hover:bg-red-100 border-red-200 shadow-sm shadow-red-100/50' 
+              : isToday 
+                ? 'bg-primary-50 hover:bg-primary-100 border-primary-200' 
+                : 'border-gray-100 hover:bg-gray-50'
           }`}
         >
-          <span className={`text-xs font-medium ${isToday ? 'bg-primary-600 text-white px-1.5 py-0.5 rounded-full' : 'text-gray-600'}`}>
+          <span className={`text-xs font-medium ${isStrikeDay ? 'bg-red-600 text-white px-1.5 py-0.5 rounded-full' : isToday ? 'bg-primary-600 text-white px-1.5 py-0.5 rounded-full' : 'text-gray-600'}`}>
             {d}
           </span>
           <div className="mt-1 space-y-0.5 overflow-hidden">
@@ -207,12 +213,13 @@ export default function Calendario() {
       const date = new Date(weekStart.getTime() + i * 86400000);
       const dayEvents = getEventsForDate(date);
       const isToday = isSameDay(date, today);
+      const isStrikeDay = dayEvents.some(e => e.isParo);
 
       days.push(
-        <div key={i} className={`flex-1 min-w-0 border-r border-gray-100 last:border-r-0 ${isToday ? 'bg-primary-50/50' : ''}`}>
-          <div className={`text-center py-3 border-b border-gray-100 ${isToday ? 'bg-primary-100' : 'bg-gray-50'}`}>
-            <p className="text-xs text-gray-500">{DIAS_SEMANA[date.getDay()]}</p>
-            <p className={`text-lg font-bold ${isToday ? 'text-primary-600' : 'text-gray-900'}`}>
+        <div key={i} className={`flex-1 min-w-0 border-r border-gray-100 last:border-r-0 ${isStrikeDay ? 'bg-red-50/30' : isToday ? 'bg-primary-50/50' : ''}`}>
+          <div className={`text-center py-3 border-b border-gray-100 ${isStrikeDay ? 'bg-red-100 border-red-200' : isToday ? 'bg-primary-100' : 'bg-gray-50'}`}>
+            <p className={`text-xs font-medium ${isStrikeDay ? 'text-red-600' : 'text-gray-500'}`}>{DIAS_SEMANA[date.getDay()]}</p>
+            <p className={`text-lg font-bold ${isStrikeDay ? 'text-red-700' : isToday ? 'text-primary-600' : 'text-gray-900'}`}>
               {date.getDate()}
             </p>
           </div>
@@ -332,6 +339,14 @@ export default function Calendario() {
               onChange={(e) => setEventoForm({ ...eventoForm, descripcion: e.target.value })}
               className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
               rows={3} />
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="checkbox" id="esParo" checked={eventoForm.esParo}
+              onChange={(e) => setEventoForm({ ...eventoForm, esParo: e.target.checked })}
+              className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
+            <label htmlFor="esParo" className="text-sm font-medium text-red-600 cursor-pointer">
+              Es un día de Paro (Se suspenden clases)
+            </label>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => setModalOpen(false)}

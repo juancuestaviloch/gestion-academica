@@ -148,7 +148,7 @@ export default function Tareas() {
 
           return (
             <div key={tarea.id}
-              className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all hover:shadow-md ${
+              className={`bg-white rounded-2xl border shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer ${
                 vencida ? 'border-red-200' : urgente ? 'border-amber-200' : 'border-gray-100'
               }`}>
               <div className="flex items-center">
