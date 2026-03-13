@@ -72,6 +72,36 @@ router.get('/', async (_req, res) => {
     const presentes = todasAsistencias.filter((a) => a.presente).length;
     const asistenciaPromedio = totalAsistencias > 0 ? Math.round((presentes / totalAsistencias) * 100) : 100;
 
+    // Cálculo de Racha de Estudio (Streaks) basándose en interacciones de los últimos meses
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const [actTareas, actAsist, actApuntes] = await Promise.all([
+      prisma.tarea.findMany({ where: { estado: 'Entregada', updatedAt: { gte: last30Days } }, select: { updatedAt: true } }),
+      prisma.asistencia.findMany({ where: { presente: true, fecha: { gte: last30Days } }, select: { fecha: true } }),
+      prisma.apunte.findMany({ where: { createdAt: { gte: last30Days } }, select: { createdAt: true } })
+    ]);
+
+    const activeDates = new Set<string>();
+    [...actTareas.map(t => t.updatedAt), ...actAsist.map(a => a.fecha), ...actApuntes.map(a => a.createdAt)].forEach(d => {
+      activeDates.add(new Date(d).toISOString().split('T')[0]);
+    });
+
+    let rachaEstudio = 0;
+    let checkDate = new Date();
+    while (true) {
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (activeDates.has(dateStr)) {
+        rachaEstudio++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        // Permitimos que hoy no tenga actividad sin perder la racha de ayer
+        if (rachaEstudio === 0 && checkDate.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+    }
+
     // Eventos de hoy
     const eventosHoy = await prisma.evento.findMany({
       where: {
@@ -93,6 +123,7 @@ router.get('/', async (_req, res) => {
         totalTareas,
         tareasEntregadas,
         asistenciaPromedio,
+        rachaEstudio,
       },
     });
   } catch (error) {

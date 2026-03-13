@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   TrendingUp,
   Calendar,
+  Flame,
 } from 'lucide-react';
 import { dashboardAPI } from '../api';
 import { DashboardData } from '../types';
@@ -70,11 +71,17 @@ export default function Dashboard() {
           sub={`${estadisticas.totalTareas - estadisticas.tareasEntregadas} pendientes`}
         />
         <StatCard
-          icon={<TrendingUp className="w-5 h-5" />}
-          label="Asistencia Promedio"
-          value={`${estadisticas.asistenciaPromedio}%`}
-          color={estadisticas.asistenciaPromedio < 75 ? 'bg-danger' : 'bg-primary-500'}
-          sub={estadisticas.asistenciaPromedio < 75 ? '⚠️ Por debajo del 75%' : 'En buen nivel'}
+          icon={<Flame className="w-5 h-5 text-white" />}
+          label="Racha de Estudio"
+          value={`${estadisticas.rachaEstudio} días`}
+          color={estadisticas.rachaEstudio > 0 ? 'bg-orange-500' : 'bg-gray-400'}
+          sub={
+            estadisticas.rachaEstudio > 2
+              ? '🔥 ¡Excelente ritmo!'
+              : estadisticas.rachaEstudio > 0
+              ? '👍 ¡A seguir así!'
+              : 'Empieza hoy tu racha'
+          }
         />
         <StatCard
           icon={<FileText className="w-5 h-5" />}

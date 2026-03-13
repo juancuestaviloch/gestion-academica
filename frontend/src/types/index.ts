@@ -126,6 +126,7 @@ export interface DashboardData {
     totalTareas: number;
     tareasEntregadas: number;
     asistenciaPromedio: number;
+    rachaEstudio: number;
   };
 }
 
