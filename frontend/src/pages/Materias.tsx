@@ -164,6 +164,11 @@ export default function Materias() {
                       <Clock className="w-3 h-3" />
                       {h.diaSemana} {h.horaInicio}-{h.horaFin}
                       {h.aula && <span className="ml-1 text-[10px] bg-gray-200 px-1 rounded">📍 {h.aula}</span>}
+                      {h.tipo && <span className={`ml-1 text-[10px] px-1 rounded ${
+                        h.tipo === 'Teoría' ? 'bg-indigo-100 text-indigo-700' :
+                        h.tipo === 'Práctica' ? 'bg-emerald-100 text-emerald-700' :
+                        'bg-violet-100 text-violet-700'
+                      }`}>{h.tipo}</span>}
                     </span>
                   ))}
                 </div>

@@ -32,6 +32,8 @@ model Horario {
   horaInicio String // "08:00"
   horaFin    String // "10:00"
   aula       String? // Optional field to store classroom/building
+  tipo       String? // Teoría | Práctica | Teórico-Práctico
+  profesor   String? // Professor name for this specific time slot
   materia    Materia @relation(fields: [materiaId], references: [id], onDelete: Cascade)
 }
 

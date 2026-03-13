@@ -5,6 +5,8 @@ export interface Horario {
   horaInicio: string;
   horaFin: string;
   aula?: string | null;
+  tipo?: string | null;
+  profesor?: string | null;
 }
 
 export interface Bibliografia {
@@ -139,6 +141,8 @@ export interface CalendarEvent {
   time?: string;
   isParo?: boolean;
   aula?: string | null;
+  tipoClase?: string | null;
+  profesor?: string | null;
 }
 
 export interface Video {

@@ -59,6 +59,8 @@ export default function Calendario() {
               type: 'clase',
               time: `${h.horaInicio} - ${h.horaFin}`,
               aula: h.aula,
+              tipoClase: h.tipo,
+              profesor: h.profesor,
             });
           }
           d.setDate(d.getDate() + 1);
@@ -310,6 +312,16 @@ export default function Calendario() {
                         📍 {ev.aula}
                       </span>
                     )}
+                    {ev.tipoClase && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                        ev.tipoClase === 'Teoría' ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' :
+                        ev.tipoClase === 'Práctica' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
+                        'bg-violet-100 text-violet-700 border border-violet-200'
+                      }`}>
+                        {ev.tipoClase}
+                      </span>
+                    )}
+                    {ev.profesor && <p className="text-[10px] text-gray-400">👤 {ev.profesor}</p>}
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
