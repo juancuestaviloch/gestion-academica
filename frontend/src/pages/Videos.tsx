@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Title } from '../components/Title';
 import { videosAPI, materiasAPI } from '../api';
 import { Video, Materia } from '../types';
 import { PlayCircle, CheckCircle, Video as VideoIcon, Filter, ExternalLink } from 'lucide-react';
@@ -61,7 +60,7 @@ export default function Videos() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <Title text="Mis Videos y Clases Grabadas" />
+        <h1 className="text-2xl font-bold text-gray-900">Mis Videos y Clases Grabadas</h1>
         
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2 shadow-sm">
