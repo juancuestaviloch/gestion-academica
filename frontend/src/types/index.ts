@@ -79,7 +79,7 @@ export interface Apunte {
   materiaId: number;
   titulo: string;
   contenido?: string | null;
-  tipo: 'nota' | 'link' | 'archivo';
+  tipo: 'nota' | 'link' | 'archivo' | 'canvas';
   url?: string | null;
   createdAt: string;
   updatedAt: string;

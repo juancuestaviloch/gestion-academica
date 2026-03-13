@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Search, FileText, Link as LinkIcon, StickyNote, Download, CheckCircle2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, FileText, Link as LinkIcon, StickyNote, Download, CheckCircle2, PenTool } from 'lucide-react';
+import { Tldraw, useEditor } from '@tldraw/tldraw';
+import '@tldraw/tldraw/tldraw.css';
 import { apuntesAPI, materiasAPI } from '../api';
 import { Apunte, Materia } from '../types';
 import Modal from '../components/Modal';
@@ -8,7 +10,38 @@ const TIPOS = [
   { value: 'nota', label: 'Nota', icon: StickyNote },
   { value: 'link', label: 'Link', icon: LinkIcon },
   { value: 'archivo', label: 'Archivo', icon: FileText },
+  { value: 'canvas', label: 'Pizarrón', icon: PenTool },
 ] as const;
+
+function CustomTldraw({ apunte, onClose }: { apunte: Apunte; onClose: () => void }) {
+  const editor = useEditor();
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!editor) return;
+    setSaving(true);
+    const snapshot = editor.store.getStoreSnapshot();
+    await apuntesAPI.update(apunte.id, { canvasData: JSON.stringify(snapshot) } as any);
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <div className="absolute bottom-4 right-4 z-50">
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
+      >
+        {saving ? (
+          <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Guardando...</>
+        ) : (
+          <><CheckCircle2 className="w-4 h-4" /> Guardar Pizarrón</>
+        )}
+      </button>
+    </div>
+  );
+}
 
 export default function Apuntes() {
   const [apuntes, setApuntes] = useState<Apunte[]>([]);
@@ -40,7 +73,14 @@ export default function Apuntes() {
 
   const openEdit = (a: Apunte) => { setEditando(a); setForm({ materiaId: a.materiaId, titulo: a.titulo, contenido: a.contenido || '', tipo: a.tipo, url: a.url || '' }); setModalOpen(true); };
 
-  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (editando) await apuntesAPI.update(editando.id, form); else await apuntesAPI.create(form); setModalOpen(false); fetchData(); };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = { ...form };
+    // Mismo body pero manejado via API
+    if (editando) await apuntesAPI.update(editando.id, payload);
+    else await apuntesAPI.create(payload);
+    setModalOpen(false); fetchData();
+  };
 
   const handleDelete = async (id: number) => { if (!confirm('¿Eliminar?')) return; await apuntesAPI.delete(id); fetchData(); };
 
@@ -78,7 +118,7 @@ export default function Apuntes() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {apuntes.map(apunte => {
-          const Icon = apunte.tipo === 'link' ? LinkIcon : apunte.tipo === 'archivo' ? FileText : StickyNote;
+          const Icon = apunte.tipo === 'link' ? LinkIcon : apunte.tipo === 'archivo' ? FileText : apunte.tipo === 'canvas' ? PenTool : StickyNote;
           return (
             <div key={apunte.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => { setViewing(apunte); setViewOpen(true); }}>
               <div className="h-1" style={{ backgroundColor: apunte.materia.color }} />
@@ -139,8 +179,15 @@ export default function Apuntes() {
             </div>
           )}
 
-          {viewing.url && viewing.tipo !== 'archivo' && <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 hover:underline mb-4 block">🔗 {viewing.url}</a>}
-          {viewing.contenido && <div className="markdown-content" dangerouslySetInnerHTML={{ __html: renderMd(viewing.contenido) }} />}
+          {viewing.url && viewing.tipo !== 'archivo' && viewing.tipo !== 'canvas' && <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 hover:underline mb-4 block">🔗 {viewing.url}</a>}
+          {viewing.tipo === 'nota' && viewing.contenido && <div className="markdown-content prose max-w-none" dangerouslySetInnerHTML={{ __html: renderMd(viewing.contenido) }} />}
+          {viewing.tipo === 'canvas' && (
+            <div className="w-full h-[600px] border border-gray-200 rounded-xl overflow-hidden shadow-inner relative z-0">
+              <Tldraw autoFocus={false} persistenceKey={`tldraw-materia-${viewing.materiaId}-apunte-${viewing.id}`}>
+                <CustomTldraw apunte={viewing} onClose={() => setViewOpen(false)} />
+              </Tldraw>
+            </div>
+          )}
         </div>}
       </Modal>
 

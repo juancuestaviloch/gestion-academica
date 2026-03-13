@@ -51,7 +51,7 @@ router.get('/:id', async (req, res) => {
 // Crear apunte
 router.post('/', async (req, res) => {
   try {
-    const { materiaId, titulo, contenido, tipo, url } = req.body;
+    const { materiaId, titulo, contenido, tipo, url, canvasData } = req.body;
     const apunte = await prisma.apunte.create({
       data: {
         materiaId,
@@ -59,6 +59,7 @@ router.post('/', async (req, res) => {
         contenido,
         tipo: tipo || 'nota',
         url,
+        canvasData,
       },
       include: { materia: { select: { id: true, nombre: true, color: true } } },
     });
@@ -71,10 +72,10 @@ router.post('/', async (req, res) => {
 // Actualizar apunte
 router.put('/:id', async (req, res) => {
   try {
-    const { materiaId, titulo, contenido, tipo, url } = req.body;
+    const { materiaId, titulo, contenido, tipo, url, canvasData } = req.body;
     const apunte = await prisma.apunte.update({
       where: { id: parseInt(req.params.id) },
-      data: { materiaId, titulo, contenido, tipo, url },
+      data: { materiaId, titulo, contenido, tipo, url, canvasData },
       include: { materia: { select: { id: true, nombre: true, color: true } } },
     });
     res.json(apunte);
