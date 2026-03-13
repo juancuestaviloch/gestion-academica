@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Materia {
+  id          Int           @id @default(autoincrement())
+  nombre      String
+  profesor    String
+  estado      String        @default("Cursando") // Cursando | Aprobada | Pendiente
+  color       String        @default("#4F46E5")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  horarios    Horario[]
+  bibliografia Bibliografia[]
+  examenes    Examen[]
+  tareas      Tarea[]
+  asistencias Asistencia[]
+  apuntes     Apunte[]
+}
+
+model Horario {
+  id         Int     @id @default(autoincrement())
+  materiaId  Int
+  diaSemana  String  // Lunes | Martes | Miércoles | Jueves | Viernes | Sábado
+  horaInicio String  // "08:00"
+  horaFin    String  // "10:00"
+  materia    Materia @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+}
+
+model Bibliografia {
+  id        Int     @id @default(autoincrement())
+  materiaId Int
+  nombre    String
+  url       String?
+  materia   Materia @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+}
+
+model Examen {
+  id        Int      @id @default(autoincrement())
+  materiaId Int
+  fecha     DateTime
+  tipo      String   // Parcial | Final | Recuperatorio
+  aula      String?
+  notas     String?
+  materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Tarea {
+  id          Int      @id @default(autoincrement())
+  materiaId   Int
+  titulo      String
+  descripcion String?
+  fechaLimite DateTime
+  estado      String   @default("Pendiente") // Pendiente | En progreso | Entregada
+  materia     Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Asistencia {
+  id        Int      @id @default(autoincrement())
+  materiaId Int
+  fecha     DateTime
+  presente  Boolean  @default(true)
+  materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+}
+
+model Apunte {
+  id        Int      @id @default(autoincrement())
+  materiaId Int
+  titulo    String
+  contenido String?
+  tipo      String   @default("nota") // nota | link | archivo
+  url       String?
+  materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Evento {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  fecha       DateTime
+  descripcion String?
+  color       String   @default("#6366F1")
+  createdAt   DateTime @default(now())
+}
+
+model Meta {
+  id           Int    @id @default(autoincrement())
+  titulo       String
+  descripcion  String?
+  objetivo     Int    @default(1)
+  progreso     Int    @default(0)
+  cuatrimestre String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
