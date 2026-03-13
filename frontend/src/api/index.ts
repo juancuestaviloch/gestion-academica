@@ -71,10 +71,12 @@ let EXAMENES: Examen[] = [
 
 // ===================== TAREAS =====================
 let TAREAS: Tarea[] = [
-  { id: 1, materiaId: 2, titulo: 'Práctica Matemática I - Comisión', descripcion: 'Resolver ejercicios de la guía de práctica. Revisar video de Clase 1 en aula virtual si se perdió por paro docente.', fechaLimite: addDays(5).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
-  { id: 2, materiaId: 4, titulo: 'Cuestionario cierre TIVU 2026', descripcion: 'Completar el cuestionario de cierre del TIVU en el campus virtual.', fechaLimite: addDays(0).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 4, nombre: 'Taller Introd. Vida Universitaria (TIVU)', color: '#D97706' } },
-  { id: 3, materiaId: 1, titulo: 'Lectura Unidad 1 - Intro Economía', descripcion: 'Las clases inician la semana del 23 de marzo (paro docente semana anterior). Adelantar lectura de Unidad 1.', fechaLimite: addDays(10).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
-  { id: 4, materiaId: 3, titulo: 'Lectura Robbins Cap. 1-2', descripcion: 'Leer capítulos 1 y 2 de Robbins & Coulter para la próxima clase.', fechaLimite: addDays(7).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 3, nombre: 'Principios de Administración', color: '#DC2626' } },
+  { id: 1, materiaId: 2, titulo: 'Imprimir y llevar Guía de TP n° 1', descripcion: 'Sucesiones numéricas. Indispensable para la clase práctica.', fechaLimite: addDays(4).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 5, materiaId: 2, titulo: 'Ver Video Obligatorio: Clase 1', descripcion: 'Ver el video de la Clase 1 sobre Sucesiones en el Campus Virtual ANTES de asistir a la práctica.', fechaLimite: addDays(2).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 2, materiaId: 4, titulo: 'Cuestionario cierre TIVU 2026', descripcion: 'Completar el cuestionario final en la solapa de TIVU en el campus virtual.', fechaLimite: addDays(0).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 4, nombre: 'Taller Introd. Vida Universitaria (TIVU)', color: '#D97706' } },
+  { id: 3, materiaId: 1, titulo: 'Lectura: ¿Qué es la Economía?', descripcion: 'Prepararse para la primera semana con esta lectura introductoria (Unidad 1).', fechaLimite: addDays(10).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
+  { id: 6, materiaId: 1, titulo: 'Conseguir Dossiers y Guía U1', descripcion: 'Pasar por fotocopiadora para comprar y llevar a clase: Dossiers de Lectura U1 y Guía de TPs U1 2025.', fechaLimite: addDays(9).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
+  { id: 7, materiaId: 3, titulo: 'Seleccionar Comisión en Campus', descripcion: 'Entrar a Principios de Administración en el CV y seleccionar la Comisión 50 para destrabar el material.', fechaLimite: addDays(1).toISOString(), estado: 'Pendiente', createdAt: '', updatedAt: '', materia: { id: 3, nombre: 'Principios de Administración', color: '#DC2626' } },
 ];
 
 // ===================== ASISTENCIAS =====================
@@ -89,17 +91,16 @@ for (const mid of [1, 2, 3, 4]) {
 
 // ===================== APUNTES =====================
 let APUNTES: Apunte[] = [
-  { id: 1, materiaId: 2, titulo: 'Aviso: Paro docente semana 16-20 marzo', contenido: '# Paro Docente - Matemática I\n\n## Comisiones afectadas:\n- **Comisión 1:** Lunes 16/3 SIN PRÁCTICA. Miércoles 18/3 NORMAL.\n- **Comisión 2:** Lunes 16/3 NORMAL. Miércoles 18/3 SIN TEORÍA.\n- **Comisión 3:** Lunes 16/3 SIN TEORÍA. Miércoles 18/3 NORMAL.\n\n> Se recomienda ver el **video de la Clase 1** publicado en el aula virtual.', tipo: 'nota', url: null, createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 1, materiaId: 2, titulo: 'Aviso: Paro docente semana 16-20 marzo', contenido: '# Paro Docente - Matemática I\n\n## Tu comisión (Com. 4):\n- **Lunes 16/3:** NORMAL (Teoría).\n- **Miércoles 18/3:** Es probable que no haya práctica presencial.\n\n> Se debe ver obligatoriamente el **video de la Clase 1** publicado en el aula virtual.', tipo: 'nota', url: null, createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
   { id: 2, materiaId: 1, titulo: 'Aviso: Inicio de clases pospuesto', contenido: '# Introducción a la Economía\n\nTodos los integrantes de la cátedra se adhieren al **paro docente** de la semana del 16 al 20 de marzo.\n\n**Las clases inician la semana siguiente** (a partir del 23 de marzo).\n\nMail de contacto: `iale@mdp.edu.ar`', tipo: 'nota', url: null, createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
-  { id: 3, materiaId: 1, titulo: 'Campus Virtual - Intro Economía', contenido: 'Enlace al aula virtual de la materia', tipo: 'link', url: 'https://eco.mdp.edu.ar/cv/', createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 1, nombre: 'Introducción a la Economía', color: '#4F46E5' } },
-  { id: 4, materiaId: 2, titulo: 'Campus Virtual - Matemática I', contenido: 'Enlace al aula virtual. Incluye videos de clases teóricas y guías de práctica.', tipo: 'link', url: 'https://eco.mdp.edu.ar/cv/', createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 2, nombre: 'Matemática I', color: '#059669' } },
+  { id: 5, materiaId: 3, titulo: 'Aviso: Seleccionar Comisión 50', contenido: 'En el campus de Administración (Presentación 2025) hay que seleccionar la opción de Comisión 50 para que te habiliten el material de cursada y foros.', tipo: 'nota', url: null, createdAt: new Date().toISOString(), updatedAt: '', materia: { id: 3, nombre: 'Principios de Administración', color: '#DC2626' } },
 ];
 
 // ===================== EVENTOS =====================
 let EVENTOS: Evento[] = [
-  { id: 1, titulo: 'Paro docente - Semana sin clases regulares', fecha: addDays(3).toISOString(), descripcion: 'Adhesión general al paro. Verificar qué comisiones tienen clase y cuáles no.', color: '#EF4444', createdAt: '' },
-  { id: 2, titulo: 'Inicio clases Intro a la Economía', fecha: addDays(10).toISOString(), descripcion: 'Las clases de Intro a la Economía comienzan esta semana (pospuesto por paro).', color: '#4F46E5', createdAt: '' },
-  { id: 3, titulo: 'Cuestionario cierre TIVU', fecha: addDays(0).toISOString(), descripcion: 'Apertura y cierre del cuestionario del TIVU 2026', color: '#D97706', createdAt: '' },
+  { id: 1, titulo: 'Paro docente - Semana del 16 al 20', fecha: addDays(3).toISOString(), descripcion: 'Adhesión parcial. Matemática Com 4 tiene clases el lunes.', color: '#EF4444', createdAt: '' },
+  { id: 2, titulo: 'Inicio cursada Intro Economía', fecha: addDays(11).toISOString(), descripcion: 'Primera clase de Teoría con A. Giudice (pospuesta una semana por el paro).', color: '#4F46E5', createdAt: '' },
+  { id: 3, titulo: 'Cierre Cuestionario TIVU', fecha: addDays(0).toISOString(), descripcion: 'Fecha límite para entregar evaluación del TIVU', color: '#D97706', createdAt: '' },
 ];
 
 // ===================== METAS =====================
