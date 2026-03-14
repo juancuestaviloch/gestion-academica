@@ -54,6 +54,7 @@ model Examen {
   tipo      String // Parcial | Final | Recuperatorio
   aula      String?
   notas     String?
+  nota      Float? // Campo para la calificación obtenida
   materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }

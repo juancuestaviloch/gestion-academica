@@ -110,11 +110,41 @@ router.get('/', async (_req, res) => {
       orderBy: { fecha: 'asc' },
     });
 
+    // --- NUEVAS ESTADÍSTICAS PROACTIVAS ---
+    
+    // 1. Promedio Académico (Basado en exámenes con nota)
+    const promedioStats = await prisma.examen.aggregate({
+      _avg: { nota: true },
+      where: { nota: { not: null } }
+    });
+    const promedioGeneral = promedioStats._avg.nota ? Math.round(promedioStats._avg.nota * 100) / 100 : 0;
+
+    // 2. Identificar Próxima Clase
+    // Formatear hora actual HH:MM
+    const currentHHMM = now.toTimeString().split(' ')[0].substring(0, 5);
+    
+    let proximaClase = null;
+    const clasesHoyOrdenadas = clasesHoy.sort((a, b) => a.horarios[0].horaInicio.localeCompare(b.horarios[0].horaInicio));
+    
+    for (const clase of clasesHoyOrdenadas) {
+      if (clase.horarios[0].horaInicio > currentHHMM) {
+        proximaClase = {
+          materiaId: clase.materiaId,
+          materia: clase.materia,
+          color: clase.color,
+          hora: clase.horarios[0].horaInicio,
+          aula: materiasConHorarios.find(m => m.id === clase.materiaId)?.horarios[0].aula || 'A confirmar'
+        };
+        break;
+      }
+    }
+
     res.json({
       clasesHoy,
       examenesProximos,
       tareasUrgentes,
       eventosHoy,
+      proximaClase,
       estadisticas: {
         totalMaterias,
         materiasCursando,
@@ -124,6 +154,7 @@ router.get('/', async (_req, res) => {
         tareasEntregadas,
         asistenciaPromedio,
         rachaEstudio,
+        promedioGeneral,
       },
     });
   } catch (error) {

@@ -37,6 +37,7 @@ export interface Examen {
   tipo: 'Parcial' | 'Final' | 'Recuperatorio';
   aula?: string | null;
   notas?: string | null;
+  nota?: number | null;
   createdAt: string;
   materia: { id: number; nombre: string; color: string };
 }
@@ -121,6 +122,13 @@ export interface DashboardData {
   examenesProximos: Examen[];
   tareasUrgentes: Tarea[];
   eventosHoy: Evento[];
+  proximaClase?: {
+    materiaId: number;
+    materia: string;
+    color: string;
+    hora: string;
+    aulaText?: string;
+  } | null;
   videosPendientes: Video[];
   estadisticas: {
     totalMaterias: number;
@@ -131,6 +139,7 @@ export interface DashboardData {
     tareasEntregadas: number;
     asistenciaPromedio: number;
     rachaEstudio: number;
+    promedioGeneral: number;
   };
 }
 

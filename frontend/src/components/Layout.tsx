@@ -13,6 +13,7 @@ import {
   X,
   GraduationCap,
   PlaySquare,
+  Bell,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const location = useLocation();
 
   const currentPage = navItems.find((item) => item.path === location.pathname);
@@ -127,12 +129,81 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               })}
             </p>
           </div>
+
+          <div className="ml-auto flex items-center gap-2 relative">
+            <button 
+              onClick={() => setNotifOpen(!notifOpen)}
+              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative transition-all active:scale-95"
+            >
+              <Bell className="w-6 h-6" />
+              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse" />
+            </button>
+
+            {/* Panel de Notificaciones Dropdown */}
+            {notifOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setNotifOpen(false)} 
+                />
+                <div className="absolute top-12 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50">
+                    <h3 className="font-bold text-gray-900">Notificaciones</h3>
+                  </div>
+                  <div className="max-h-[400px] overflow-y-auto">
+                    <NotificationItem 
+                      title="Examen Próximo" 
+                      desc="Parcial de Introducción a la Economía" 
+                      time="En 4 días" 
+                      type="warning" 
+                    />
+                    <NotificationItem 
+                      title="Tarea Pendiente" 
+                      desc="TP Matematica 1 - Integración" 
+                      time="Mañana" 
+                      type="error" 
+                    />
+                    <NotificationItem 
+                      title="Clase por Empezar" 
+                      desc="Matemática II empieza a las 11:00" 
+                      time="En 45 min" 
+                      type="info" 
+                    />
+                  </div>
+                  <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
+                    <button className="text-sm font-semibold text-primary-600 hover:text-primary-700">Ver todas</button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </header>
 
         {/* Main */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           <div className="animate-fade-in">{children}</div>
         </main>
+      </div>
+    </div>
+  );
+}
+
+function NotificationItem({ title, desc, time, type }: { title: string, desc: string, time: string, type: 'warning' | 'error' | 'info' }) {
+  const colors = {
+    warning: 'bg-amber-100 text-amber-600',
+    error: 'bg-red-100 text-red-600',
+    info: 'bg-blue-100 text-blue-600'
+  };
+
+  return (
+    <div className="px-5 py-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group">
+      <div className="flex gap-4">
+        <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${type === 'error' ? 'animate-ping bg-red-400' : 'bg-gray-300'}`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-gray-900 group-hover:text-primary-600 transition-colors">{title}</p>
+          <p className="text-sm text-gray-500 line-clamp-2">{desc}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mt-1">{time}</p>
+        </div>
       </div>
     </div>
   );

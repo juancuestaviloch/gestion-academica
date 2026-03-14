@@ -4,24 +4,9 @@ import { PrismaClient } from '@prisma/client';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Obtener asistencias (con porcentaje por materia)
-router.get('/', async (req, res) => {
+// Obtener resumen de asistencias por materia
+router.get('/resumen', async (req, res) => {
   try {
-    const { materiaId } = req.query;
-
-    if (materiaId) {
-      const asistencias = await prisma.asistencia.findMany({
-        where: { materiaId: parseInt(materiaId as string) },
-        orderBy: { fecha: 'desc' },
-      });
-      const total = asistencias.length;
-      const presentes = asistencias.filter((a) => a.presente).length;
-      const porcentaje = total > 0 ? Math.round((presentes / total) * 100) : 100;
-
-      return res.json({ asistencias, total, presentes, porcentaje });
-    }
-
-    // Si no hay filtro, devolver resumen por materia
     const materias = await prisma.materia.findMany({
       where: { estado: 'Cursando' },
       include: { asistencias: true },
@@ -46,7 +31,26 @@ router.get('/', async (req, res) => {
 
     res.json(resumen);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener asistencias' });
+    res.status(500).json({ error: 'Error al obtener resumen de asistencias' });
+  }
+});
+
+// Obtener detalle de asistencias de una materia
+router.get('/materia/:materiaId', async (req, res) => {
+  try {
+    const { materiaId } = req.params;
+    const asistencias = await prisma.asistencia.findMany({
+      where: { materiaId: parseInt(materiaId) },
+      orderBy: { fecha: 'desc' },
+    });
+    
+    const total = asistencias.length;
+    const presentes = asistencias.filter((a) => a.presente).length;
+    const porcentaje = total > 0 ? Math.round((presentes / total) * 100) : 100;
+
+    res.json({ asistencias, total, presentes, porcentaje });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener detalle de asistencias' });
   }
 });
 

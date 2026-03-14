@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Calendar,
   Flame,
+  GraduationCap,
 } from 'lucide-react';
 import { dashboardAPI } from '../api';
 import { DashboardData } from '../types';
@@ -64,6 +65,13 @@ export default function Dashboard() {
           sub={`${estadisticas.materiasAprobadas} aprobadas de ${estadisticas.totalMaterias}`}
         />
         <StatCard
+          icon={<GraduationCap className="w-5 h-5" />}
+          label="Promedio General"
+          value={estadisticas.promedioGeneral || '-.--'}
+          color="bg-indigo-600"
+          sub="Basado en finales y parciales"
+        />
+        <StatCard
           icon={<CheckSquare className="w-5 h-5" />}
           label="Tareas Completadas"
           value={`${estadisticas.tareasEntregadas}/${estadisticas.totalTareas}`}
@@ -91,6 +99,32 @@ export default function Dashboard() {
           sub="En los próximos 7 días"
         />
       </div>
+
+      {/* Seccion Proactiva: Próxima Clase */}
+      {data.proximaClase && (
+        <div className="bg-gradient-to-r from-primary-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg overflow-hidden relative">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-primary-100">Próximo Evento</span>
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Clock className="w-6 h-6" /> {data.proximaClase.materia}
+              </h2>
+              <p className="text-primary-100 opacity-90">
+                Empieza hoy a las <span className="font-bold">{data.proximaClase.hora}</span> en <span className="font-bold">{data.proximaClase.aulaText || 'Aula a confirmar'}</span>
+              </p>
+            </div>
+            <button 
+              className="bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-2.5 rounded-full font-semibold transition-all border border-white/20"
+              onClick={() => window.location.href = `/materias?id=${data.proximaClase?.materiaId}`}
+            >
+              Ver detalles de cursada
+            </button>
+          </div>
+          <div className="absolute right-0 top-0 -mr-8 -mt-8 opacity-10">
+            <Clock className="w-48 h-48 rotate-12" />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Clases de hoy */}
