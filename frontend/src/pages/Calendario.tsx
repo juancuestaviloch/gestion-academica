@@ -99,6 +99,7 @@ export default function Calendario() {
         color: e.esParo ? '#DC2626' : e.color,
         type: 'evento',
         isParo: e.esParo,
+        description: e.descripcion,
       });
     });
 
@@ -312,6 +313,12 @@ export default function Calendario() {
                         📍 {ev.aula}
                       </span>
                     )}
+                    {ev.isParo && (
+                      <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold border border-red-200">
+                        ⚠ PARO DOCENTE
+                      </span>
+                    )}
+
                     {ev.tipoClase && (
                       <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                         ev.tipoClase === 'Teoría' ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' :
@@ -323,6 +330,12 @@ export default function Calendario() {
                     )}
                     {ev.profesor && <p className="text-[10px] text-gray-400">👤 {ev.profesor}</p>}
                   </div>
+                  {ev.description && (
+                    <p className={`text-xs mt-2 p-2 rounded-lg border ${ev.isParo ? 'bg-red-50 text-red-700 border-red-100 italic' : 'bg-white text-gray-600 border-gray-100'}`}>
+                      {ev.description}
+                    </p>
+                  )}
+
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   ev.type === 'clase' ? 'bg-blue-100 text-blue-700' :

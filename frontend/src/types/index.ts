@@ -22,6 +22,8 @@ export interface Materia {
   profesor: string;
   estado: 'Cursando' | 'Aprobada' | 'Pendiente';
   color: string;
+  anio: number;
+  cuatrimestre: string;
   createdAt: string;
   updatedAt: string;
   horarios: Horario[];
@@ -143,6 +145,7 @@ export interface CalendarEvent {
   aula?: string | null;
   tipoClase?: string | null;
   profesor?: string | null;
+  description?: string;
 }
 
 export interface Video {

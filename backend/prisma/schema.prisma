@@ -14,6 +14,8 @@ model Materia {
   profesor     String
   estado       String         @default("Cursando") // Cursando | Aprobada | Pendiente
   color        String         @default("#4F46E5")
+  anio         Int            @default(1) // 1-5
+  cuatrimestre String         @default("1er Cuatrimestre") // 1er Cuatrimestre | 2do Cuatrimestre | Anual
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   horarios     Horario[]
