@@ -86,6 +86,7 @@ export interface Apunte {
   contenido?: string | null;
   tipo: 'nota' | 'link' | 'archivo' | 'canvas';
   url?: string | null;
+  canvasData?: string | null;
   createdAt: string;
   updatedAt: string;
   materia: { id: number; nombre: string; color: string };

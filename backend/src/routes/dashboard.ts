@@ -114,26 +114,31 @@ router.get('/', async (_req, res) => {
     
     // 1. Promedio Académico (Basado en exámenes con nota)
     const promedioStats = await prisma.examen.aggregate({
-      _avg: { nota: true },
-      where: { nota: { not: null } }
+      _avg: { nota: true } as any,
+      where: { nota: { not: null } } as any
     });
-    const promedioGeneral = promedioStats._avg.nota ? Math.round(promedioStats._avg.nota * 100) / 100 : 0;
+    const promedioGeneral = promedioStats._avg?.nota ? Math.round(promedioStats._avg.nota * 100) / 100 : 0;
 
     // 2. Identificar Próxima Clase
     // Formatear hora actual HH:MM
     const currentHHMM = now.toTimeString().split(' ')[0].substring(0, 5);
     
     let proximaClase = null;
-    const clasesHoyOrdenadas = clasesHoy.sort((a, b) => a.horarios[0].horaInicio.localeCompare(b.horarios[0].horaInicio));
+    const clasesHoyOrdenadas = clasesHoy.sort((a, b) => {
+      const hA = a.horarios[0]?.horaInicio || '00:00';
+      const hB = b.horarios[0]?.horaInicio || '00:00';
+      return hA.localeCompare(hB);
+    });
     
     for (const clase of clasesHoyOrdenadas) {
-      if (clase.horarios[0].horaInicio > currentHHMM) {
+      if (clase.horarios[0]?.horaInicio > currentHHMM) {
+        const materiaInfo = materiasConHorarios.find(m => m.id === clase.materiaId);
         proximaClase = {
           materiaId: clase.materiaId,
           materia: clase.materia,
           color: clase.color,
           hora: clase.horarios[0].horaInicio,
-          aula: materiasConHorarios.find(m => m.id === clase.materiaId)?.horarios[0].aula || 'A confirmar'
+          aula: (materiaInfo?.horarios.find(h => h.horaInicio === clase.horarios[0].horaInicio) as any)?.aula || 'A confirmar'
         };
         break;
       }

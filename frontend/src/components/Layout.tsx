@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { notificacionesAPI } from '../api';
 import {
   LayoutDashboard,
   BookOpen,
@@ -31,7 +32,17 @@ const navItems = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const location = useLocation();
+
+  useEffect(() => {
+    notificacionesAPI.getAll().then(setNotificaciones).catch(console.error);
+    // Refrezcar cada 5 minutos
+    const interval = setInterval(() => {
+      notificacionesAPI.getAll().then(setNotificaciones).catch(console.error);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const currentPage = navItems.find((item) => item.path === location.pathname);
 
@@ -136,7 +147,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               className="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative transition-all active:scale-95"
             >
               <Bell className="w-6 h-6" />
-              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse" />
+              {notificaciones.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse" />
+              )}
             </button>
 
             {/* Panel de Notificaciones Dropdown */}
@@ -147,31 +160,31 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   onClick={() => setNotifOpen(false)} 
                 />
                 <div className="absolute top-12 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50">
+                  <div className="px-5 py-4 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
                     <h3 className="font-bold text-gray-900">Notificaciones</h3>
+                    <span className="text-[10px] bg-primary-100 text-primary-600 px-2 py-0.5 rounded-full font-bold">
+                      {notificaciones.length} NUEVAS
+                    </span>
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
-                    <NotificationItem 
-                      title="Examen Próximo" 
-                      desc="Parcial de Introducción a la Economía" 
-                      time="En 4 días" 
-                      type="warning" 
-                    />
-                    <NotificationItem 
-                      title="Tarea Pendiente" 
-                      desc="TP Matematica 1 - Integración" 
-                      time="Mañana" 
-                      type="error" 
-                    />
-                    <NotificationItem 
-                      title="Clase por Empezar" 
-                      desc="Matemática II empieza a las 11:00" 
-                      time="En 45 min" 
-                      type="info" 
-                    />
+                    {notificaciones.length === 0 ? (
+                      <div className="p-8 text-center">
+                        <p className="text-gray-400 text-sm">No tienes notificaciones pendientes</p>
+                      </div>
+                    ) : (
+                      notificaciones.map(n => (
+                        <NotificationItem 
+                          key={n.id}
+                          title={n.title} 
+                          desc={n.desc} 
+                          time={n.time} 
+                          type={n.type as any} 
+                        />
+                      ))
+                    )}
                   </div>
                   <div className="p-3 bg-gray-50 border-t border-gray-100 text-center">
-                    <button className="text-sm font-semibold text-primary-600 hover:text-primary-700">Ver todas</button>
+                    <button className="text-sm font-semibold text-primary-600 hover:text-primary-700">Marcar todas como leídas</button>
                   </div>
                 </div>
               </>

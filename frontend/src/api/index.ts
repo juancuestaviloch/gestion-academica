@@ -102,3 +102,7 @@ export const videosAPI = {
 export const dashboardAPI = {
   get: () => fetchAPI<DashboardData>('/dashboard'),
 };
+
+export const notificacionesAPI = {
+  getAll: () => fetchAPI<any[]>('/notificaciones'),
+};

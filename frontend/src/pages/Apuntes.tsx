@@ -17,6 +17,24 @@ function CustomTldraw({ apunte, onClose }: { apunte: Apunte; onClose: () => void
   const editor = useEditor();
   const [saving, setSaving] = useState(false);
 
+  // Auto-save cada 10 segundos o al cerrar
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (editor) {
+        const snapshot = editor.store.getStoreSnapshot();
+        await apuntesAPI.update(apunte.id, { canvasData: JSON.stringify(snapshot) } as any);
+      }
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      if (editor) {
+        const snapshot = editor.store.getStoreSnapshot();
+        apuntesAPI.update(apunte.id, { canvasData: JSON.stringify(snapshot) } as any).catch(console.error);
+      }
+    };
+  }, [editor, apunte.id]);
+
   const handleSave = async () => {
     if (!editor) return;
     setSaving(true);
@@ -27,17 +45,19 @@ function CustomTldraw({ apunte, onClose }: { apunte: Apunte; onClose: () => void
   };
 
   return (
-    <div className="absolute bottom-4 right-4 z-50">
+    <div className="absolute bottom-6 right-6 z-50 flex gap-2">
+      <div className="bg-white/80 backdrop-blur-md px-3 py-2 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2">
+        <div className={`w-2 h-2 rounded-full ${saving ? 'bg-amber-500 animate-pulse' : 'bg-green-500'}`} />
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">
+          {saving ? 'Guardando...' : 'Cambios guardados'}
+        </span>
+      </div>
       <button
         onClick={handleSave}
         disabled={saving}
-        className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-xl hover:bg-primary-700 shadow-lg transition-transform hover:scale-105 disabled:opacity-50"
+        className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white text-sm font-bold rounded-xl hover:bg-primary-700 shadow-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
       >
-        {saving ? (
-          <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Guardando...</>
-        ) : (
-          <><CheckCircle2 className="w-4 h-4" /> Guardar Pizarrón</>
-        )}
+        <Download className="w-4 h-4" /> Finalizar y Salir
       </button>
     </div>
   );
@@ -182,8 +202,21 @@ export default function Apuntes() {
           {viewing.url && viewing.tipo !== 'archivo' && viewing.tipo !== 'canvas' && <a href={viewing.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-600 hover:underline mb-4 block">🔗 {viewing.url}</a>}
           {viewing.tipo === 'nota' && viewing.contenido && <div className="markdown-content prose max-w-none" dangerouslySetInnerHTML={{ __html: renderMd(viewing.contenido) }} />}
           {viewing.tipo === 'canvas' && (
-            <div className="w-full h-[600px] border border-gray-200 rounded-xl overflow-hidden shadow-inner relative z-0">
-              <Tldraw autoFocus={false} persistenceKey={`tldraw-materia-${viewing.materiaId}-apunte-${viewing.id}`}>
+            <div className="w-full h-[70vh] min-h-[500px] border border-gray-200 rounded-2xl overflow-hidden shadow-2xl relative z-0">
+              <Tldraw 
+                autoFocus 
+                persistenceKey={`tldraw-v1-apunte-${viewing.id}`}
+                onMount={(editor) => {
+                  if (viewing.canvasData) {
+                    try {
+                      const snapshot = JSON.parse(viewing.canvasData);
+                      (editor.store as any).loadSnapshot(snapshot);
+                    } catch (e) {
+                      console.error('Error loading canvas:', e);
+                    }
+                  }
+                }}
+              >
                 <CustomTldraw apunte={viewing} onClose={() => setViewOpen(false)} />
               </Tldraw>
             </div>
