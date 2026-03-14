@@ -205,17 +205,7 @@ export default function Apuntes() {
             <div className="w-full h-[70vh] min-h-[500px] border border-gray-200 rounded-2xl overflow-hidden shadow-2xl relative z-0">
               <Tldraw 
                 autoFocus 
-                persistenceKey={`tldraw-v1-apunte-${viewing.id}`}
-                onMount={(editor) => {
-                  if (viewing.canvasData) {
-                    try {
-                      const snapshot = JSON.parse(viewing.canvasData);
-                      (editor.store as any).loadSnapshot(snapshot);
-                    } catch (e) {
-                      console.error('Error loading canvas:', e);
-                    }
-                  }
-                }}
+                snapshot={viewing.canvasData ? JSON.parse(viewing.canvasData) : undefined}
               >
                 <CustomTldraw apunte={viewing} onClose={() => setViewOpen(false)} />
               </Tldraw>
