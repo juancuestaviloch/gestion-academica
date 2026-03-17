@@ -18,6 +18,7 @@ import {
   PlaySquare,
   Bell,
   Zap,
+  TrendingUp,
 } from 'lucide-react';
 
 const navItems = [
@@ -32,6 +33,7 @@ const navItems = [
   { path: '/apuntes', label: 'Apuntes', icon: StickyNote },
   { path: '/videos', label: 'Videos', icon: PlaySquare },
   { path: '/metas', label: 'Metas', icon: Target },
+  { path: '/roadmap', label: 'Proyección', icon: TrendingUp },
   { path: '/focus', label: 'Focus', icon: Zap },
 ];
 

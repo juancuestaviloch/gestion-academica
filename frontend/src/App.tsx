@@ -7,6 +7,7 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const Materias = lazy(() => import('./pages/Materias'));
 const MateriaHub = lazy(() => import('./pages/MateriaHub'));
 const Flashcards = lazy(() => import('./pages/Flashcards'));
+const Roadmap = lazy(() => import('./pages/Roadmap'));
 const Calendario = lazy(() => import('./pages/Calendario'));
 const Examenes = lazy(() => import('./pages/Examenes'));
 const Tareas = lazy(() => import('./pages/Tareas'));
@@ -37,6 +38,7 @@ function App() {
             <Route path="/materia/:id" element={<MateriaHub />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/flashcards/:materiaId" element={<Flashcards />} />
+            <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/calendario" element={<Calendario />} />
             <Route path="/examenes" element={<Examenes />} />
             <Route path="/tareas" element={<Tareas />} />
