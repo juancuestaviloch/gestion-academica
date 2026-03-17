@@ -1,0 +1,6 @@
+fix: resolve Vercel build failure
+
+- Increase PWA workbox.maximumFileSizeToCacheInBytes to 5MB (resolved 2MB limit error).
+- Optimize manual chunks (specifically recharts) to improve bundle health.
+- Install react-is as a direct dependency (resolved reacharts import resolution error in Rolldown).
+- Ensure legacy-peer-deps compatibility.

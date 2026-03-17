@@ -40,6 +40,9 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ]
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5MB
       }
     })
   ],
@@ -67,7 +70,10 @@ export default defineConfig({
             if (id.includes('@tldraw/tldraw')) {
               return 'vendor-canvas';
             }
-            return 'vendor';
+            if (id.includes('recharts')) {
+              return 'vendor-charts';
+            }
+            return 'vendor-others';
           }
         },
       },
