@@ -27,6 +27,10 @@ model Materia {
   videos       Video[]
   sesiones     SesionEstudio[]
   flashcards   Flashcard[]
+  
+  // Correlatividades
+  prerequisites Materia[]       @relation("Correlatividades")
+  unlockedBy    Materia[]       @relation("Correlatividades")
 }
 
 model Horario {

@@ -19,6 +19,7 @@ import {
   Bell,
   Zap,
   TrendingUp,
+  LayoutGrid,
 } from 'lucide-react';
 
 const navItems = [
@@ -34,6 +35,7 @@ const navItems = [
   { path: '/videos', label: 'Videos', icon: PlaySquare },
   { path: '/metas', label: 'Metas', icon: Target },
   { path: '/roadmap', label: 'Proyección', icon: TrendingUp },
+  { path: '/plan', label: 'Plan de Estudios', icon: LayoutGrid },
   { path: '/focus', label: 'Focus', icon: Zap },
 ];
 

@@ -1,0 +1,7 @@
+Phase 21: Academic Degree Navigator & Correlatividades
+
+- Integrated a 5-year curriculum grid for Lic. en Administración.
+- Implemented a dependency engine to calculate subject availability (Habilitada/Bloqueada).
+- Updated database schema with self-referential relations for prerequisites.
+- Added 'Plan de Estudios' to sidebar navigation.
+- Synchronized local backend state with database seeding.

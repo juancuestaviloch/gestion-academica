@@ -16,6 +16,7 @@ const Apuntes = lazy(() => import('./pages/Apuntes'));
 const Videos = lazy(() => import('./pages/Videos'));
 const Metas = lazy(() => import('./pages/Metas'));
 const FocusMode = lazy(() => import('./pages/FocusMode'));
+const DegreeNavigator = lazy(() => import('./pages/DegreeNavigator'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-[60vh]">
@@ -47,6 +48,7 @@ function App() {
             <Route path="/videos" element={<Videos />} />
             <Route path="/metas" element={<Metas />} />
             <Route path="/focus" element={<FocusMode />} />
+            <Route path="/plan" element={<DegreeNavigator />} />
           </Routes>
         </Suspense>
       </Layout>

@@ -8,7 +8,11 @@ const prisma = new PrismaClient();
 router.get('/', async (_req, res) => {
   try {
     const materias = await prisma.materia.findMany({
-      include: { horarios: true, bibliografia: true },
+      include: { 
+        horarios: true, 
+        bibliografia: true,
+        prerequisites: { select: { id: true, nombre: true } }
+      },
       orderBy: { nombre: 'asc' },
     });
     res.json(materias);
@@ -31,6 +35,8 @@ router.get('/:id', async (req, res) => {
         apuntes: { orderBy: { createdAt: 'desc' } },
         videos: { orderBy: { createdAt: 'desc' } },
         flashcards: { orderBy: { proximoRepaso: 'asc' } },
+        prerequisites: { select: { id: true, nombre: true } },
+        unlockedBy: { select: { id: true, nombre: true } },
       },
     });
     if (!materia) {
@@ -45,17 +51,22 @@ router.get('/:id', async (req, res) => {
 // Crear materia
 router.post('/', async (req, res) => {
   try {
-    const { nombre, profesor, estado, color, horarios, bibliografia } = req.body;
+    const { nombre, profesor, estado, color, anio, cuatrimestre, horarios, bibliografia, prerequisiteIds } = req.body;
     const materia = await prisma.materia.create({
       data: {
         nombre,
         profesor,
         estado: estado || 'Cursando',
         color: color || '#4F46E5',
+        anio: anio !== undefined ? parseInt(anio) : 1,
+        cuatrimestre: cuatrimestre || '1er Cuatrimestre',
         horarios: horarios ? { create: horarios } : undefined,
         bibliografia: bibliografia ? { create: bibliografia } : undefined,
+        prerequisites: prerequisiteIds ? {
+          connect: prerequisiteIds.map((id: number) => ({ id }))
+        } : undefined,
       },
-      include: { horarios: true, bibliografia: true },
+      include: { horarios: true, bibliografia: true, prerequisites: true },
     });
     res.status(201).json(materia);
   } catch (error) {
@@ -67,12 +78,22 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { nombre, profesor, estado, color, horarios, bibliografia } = req.body;
+    const { nombre, profesor, estado, color, anio, cuatrimestre, horarios, bibliografia, prerequisiteIds } = req.body;
 
-    // Actualizar datos base
+    // Actualizar datos base y correlatividades
     const materia = await prisma.materia.update({
       where: { id },
-      data: { nombre, profesor, estado, color },
+      data: { 
+        nombre, 
+        profesor, 
+        estado, 
+        color,
+        anio: anio !== undefined ? parseInt(anio) : undefined,
+        cuatrimestre,
+        prerequisites: prerequisiteIds ? {
+          set: prerequisiteIds.map((pid: number) => ({ id: pid }))
+        } : undefined
+      },
     });
 
     // Si se envían horarios, reemplazar todos
@@ -97,7 +118,11 @@ router.put('/:id', async (req, res) => {
 
     const updated = await prisma.materia.findUnique({
       where: { id },
-      include: { horarios: true, bibliografia: true },
+      include: { 
+        horarios: true, 
+        bibliografia: true,
+        prerequisites: { select: { id: true, nombre: true } }
+      },
     });
     res.json(updated);
   } catch (error) {

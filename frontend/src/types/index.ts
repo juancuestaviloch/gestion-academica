@@ -28,6 +28,8 @@ export interface Materia {
   updatedAt: string;
   horarios: Horario[];
   bibliografia: Bibliografia[];
+  prerequisites?: { id: number; nombre: string }[];
+  unlockedBy?: { id: number; nombre: string }[];
 }
 
 export interface Examen {
