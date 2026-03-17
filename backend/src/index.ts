@@ -14,6 +14,7 @@ import sesionesRouter from './routes/sesiones';
 import flashcardsRouter from './routes/flashcards';
 import recursosRouter from './routes/recursos';
 import herramientasRouter from './routes/herramientas';
+import eventosAcademicosRouter from './routes/eventosAcademicos';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -36,6 +37,7 @@ app.use('/api/sesiones', sesionesRouter);
 app.use('/api/flashcards', flashcardsRouter);
 app.use('/api/recursos', recursosRouter);
 app.use('/api/herramientas', herramientasRouter);
+app.use('/api/eventos-academicos', eventosAcademicosRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

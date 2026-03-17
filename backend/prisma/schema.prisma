@@ -28,6 +28,7 @@ model Materia {
   sesiones     SesionEstudio[]
   flashcards   Flashcard[]
   recursos     RecursoAcademico[]
+  eventosAcademicos EventoAcademico[]
   
   // Correlatividades
   prerequisites Materia[]       @relation("Correlatividades")
@@ -175,4 +176,16 @@ model Calculo {
   entradas  String // JSON stringified inputs
   resultado Float
   createdAt DateTime @default(now())
+}
+
+model EventoAcademico {
+  id         Int      @id @default(autoincrement())
+  materiaId  Int
+  titulo     String
+  tipo       String // Tarea | Lectura | Trabajo Práctico | Parcial
+  fecha      DateTime
+  estado     String   @default("Pendiente") // Pendiente | En progreso | Completado
+  materia    Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

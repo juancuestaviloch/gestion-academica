@@ -1,4 +1,4 @@
-import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia, RecursoAcademico, Calculo } from '../types';
+import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia, RecursoAcademico, Calculo, EventoAcademico } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -136,4 +136,15 @@ export const herramientasAPI = {
   getHistorial: () => fetchAPI<Calculo[]>('/herramientas'),
   guardarCalculo: (data: Partial<Calculo>) => fetchAPI<Calculo>('/herramientas', { method: 'POST', body: JSON.stringify(data) }),
   deleteCalculo: (id: number) => fetchAPI<void>(`/herramientas/${id}`, { method: 'DELETE' }),
+};
+
+export const eventosAcademicosAPI = {
+  getAll: (params?: { materiaId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.materiaId) query.append('materiaId', params.materiaId.toString());
+    return fetchAPI<EventoAcademico[]>(`/eventos-academicos?${query.toString()}`);
+  },
+  create: (data: Partial<EventoAcademico>) => fetchAPI<EventoAcademico>('/eventos-academicos', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<EventoAcademico>) => fetchAPI<EventoAcademico>(`/eventos-academicos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => fetchAPI<void>(`/eventos-academicos/${id}`, { method: 'DELETE' }),
 };

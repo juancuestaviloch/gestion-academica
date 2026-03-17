@@ -195,3 +195,15 @@ export interface Calculo {
   resultado: number;
   createdAt: string;
 }
+
+export interface EventoAcademico {
+  id: number;
+  materiaId: number;
+  titulo: string;
+  tipo: 'Tarea' | 'Lectura' | 'Trabajo Práctico' | 'Parcial';
+  fecha: string;
+  estado: 'Pendiente' | 'En progreso' | 'Completado';
+  createdAt: string;
+  updatedAt: string;
+  materia: { nombre: string; color: string };
+}
