@@ -1,309 +1,424 @@
 import { useState, useEffect } from 'react';
 import {
-  BookOpen,
   Clock,
-  FileText,
   CheckSquare,
   AlertTriangle,
-  TrendingUp,
   Calendar,
-  Flame,
-  GraduationCap,
+  Zap,
+  Plus,
+  MoreVertical,
+  CheckCircle2,
+  BookOpen,
+  GraduationCap
 } from 'lucide-react';
-import { dashboardAPI } from '../api';
-import { DashboardData } from '../types';
+import { dashboardAPI, eventosAcademicosAPI, materiasAPI } from '../api';
+import { DashboardData, EventoAcademico, Materia } from '../types';
 import { useNavigate } from 'react-router-dom';
+import Modal from '../components/Modal';
+import BulkTaskModal from '../components/BulkTaskModal';
 
-export default function Dashboard() {
-  const navigate = useNavigate();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    dashboardAPI.get().then((d) => {
-      setData(d);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
-  const { clasesHoy, examenesProximos, tareasUrgentes, estadisticas } = data;
-
-  function formatFecha(fecha: string) {
-    return new Date(fecha).toLocaleDateString('es-AR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-  }
-
-  function diasHasta(fecha: string) {
-    const diff = Math.ceil(
-      (new Date(fecha).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (diff === 0) return 'Hoy';
-    if (diff === 1) return 'Mañana';
-    return `En ${diff} días`;
-  }
-
+function StatCard({ title, value, icon: Icon, color }: { title: string, value: string, icon: any, color: string }) {
+  const colors: any = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    amber: 'bg-amber-50 text-amber-600',
+    rose: 'bg-rose-50 text-rose-600',
+  };
   return (
-    <div className="space-y-8 pb-10">
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<BookOpen className="w-5 h-5" />}
-          label="Materias Cursando"
-          value={estadisticas.materiasCursando}
-          color="bg-primary-500"
-          sub={`${estadisticas.materiasAprobadas} aprobadas de ${estadisticas.totalMaterias}`}
-          className="animate-fade-in animate-stagger-1"
-        />
-        <StatCard
-          icon={<GraduationCap className="w-5 h-5" />}
-          label="Promedio General"
-          value={estadisticas.promedioGeneral || '-.--'}
-          color="bg-indigo-600"
-          sub="Basado en finales y parciales"
-          className="animate-fade-in animate-stagger-2"
-        />
-        <StatCard
-          icon={<CheckSquare className="w-5 h-5" />}
-          label="Tareas Completadas"
-          value={`${estadisticas.tareasEntregadas}/${estadisticas.totalTareas}`}
-          color="bg-success"
-          sub={`${estadisticas.totalTareas - estadisticas.tareasEntregadas} pendientes`}
-          className="animate-fade-in animate-stagger-3"
-        />
-        <StatCard
-          icon={<Flame className="w-5 h-5 text-white" />}
-          label="Racha de Estudio"
-          value={`${estadisticas.rachaEstudio} días`}
-          color={estadisticas.rachaEstudio > 0 ? 'bg-orange-500' : 'bg-slate-400'}
-          sub={
-            estadisticas.rachaEstudio > 2
-              ? '🔥 ¡Excelente ritmo!'
-              : estadisticas.rachaEstudio > 0
-              ? '👍 ¡A seguir así!'
-              : 'Empieza hoy tu racha'
-          }
-          className="animate-fade-in animate-stagger-4"
-        />
-        <StatCard
-          icon={<FileText className="w-5 h-5" />}
-          label="Exámenes Próximos"
-          value={examenesProximos.length}
-          color="bg-warning"
-          sub="En los próximos 7 días"
-          className="animate-fade-in animate-stagger-4"
-        />
-      </div>
-
-      {/* Seccion Proactiva: Próxima Clase */}
-      {data.proximaClase && (
-        <div className="bg-gradient-to-r from-primary-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg overflow-hidden relative">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary-100">Próximo Evento</span>
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Clock className="w-6 h-6" /> {data.proximaClase.materia}
-              </h2>
-              <p className="text-primary-100 opacity-90">
-                Empieza hoy a las <span className="font-bold">{data.proximaClase.hora}</span> en <span className="font-bold">{data.proximaClase.aulaText || 'Aula a confirmar'}</span>
-              </p>
-            </div>
-            <button 
-              className="bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-2.5 rounded-full font-semibold transition-all border border-white/20"
-              onClick={() => navigate(`/materia/${data.proximaClase?.materiaId}`)}
-            >
-              Ver detalles de cursada
-            </button>
-          </div>
-          <div className="absolute right-0 top-0 -mr-8 -mt-8 opacity-10">
-            <Clock className="w-48 h-48 rotate-12" />
-          </div>
+    <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm transition-all hover:shadow-md">
+      <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-2xl ${colors[color]}`}>
+          <Icon className="w-5 h-5" />
         </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Clases de hoy */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-primary-500" />
-            <h3 className="font-bold text-gray-900">Clases de Hoy</h3>
-          </div>
-          <div className="p-4 space-y-3">
-            {clasesHoy.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-6">No hay clases hoy 🎉</p>
-            ) : (
-              clasesHoy.map((clase, i) => (
-                <div
-                  key={i}
-                  onClick={() => navigate(`/materia/${clase.materiaId}`)}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-primary-100 hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300 cursor-pointer animate-fade-in"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                >
-                  <div
-                    className="w-1 h-12 rounded-full shrink-0"
-                    style={{ backgroundColor: clase.color }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{clase.materia}</p>
-                    <p className="text-sm text-gray-500">
-                      {clase.horarios.map((h) => `${h.horaInicio} - ${h.horaFin}`).join(', ')}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Exámenes próximos */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-warning" />
-            <h3 className="font-bold text-gray-900">Exámenes Próximos</h3>
-          </div>
-          <div className="p-4 space-y-3">
-            {examenesProximos.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-6">
-                No hay exámenes en los próximos 7 días
-              </p>
-            ) : (
-              examenesProximos.map((examen) => (
-                <div
-                  key={examen.id}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-warning-100 hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300 cursor-pointer animate-fade-in"
-                >
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
-                    style={{ backgroundColor: examen.materia.color }}
-                  >
-                    {examen.tipo.slice(0, 3).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{examen.materia.nombre}</p>
-                    <p className="text-sm text-gray-500">
-                      {examen.tipo} · {examen.aula || 'Sin aula'}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-primary-600">
-                      {diasHasta(examen.fecha)}
-                    </p>
-                    <p className="text-xs text-gray-400">{formatFecha(examen.fecha)}</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Tareas urgentes */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden lg:col-span-2">
-          <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-danger" />
-            <h3 className="font-bold text-gray-900">Tareas Pendientes Urgentes</h3>
-          </div>
-          <div className="p-4">
-            {tareasUrgentes.length === 0 ? (
-              <p className="text-gray-400 text-sm text-center py-6">
-                No hay tareas pendientes urgentes 🎉
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {tareasUrgentes.map((tarea) => {
-                  const diasRestantes = Math.ceil(
-                    (new Date(tarea.fechaLimite).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                  );
-                  const urgente = diasRestantes <= 2;
-                  return (
-                    <div
-                      key={tarea.id}
-                      className={`p-4 rounded-xl border-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer ${
-                        urgente
-                          ? 'border-red-200 bg-red-50 hover:bg-red-100'
-                          : 'border-gray-100 bg-gray-50 hover:border-primary-300 hover:bg-white'
-                      }`}
-                    >
-                      <div className="flex items-start gap-2 mb-2">
-                        <div
-                          className="w-2 h-2 rounded-full mt-2 shrink-0"
-                          style={{ backgroundColor: tarea.materia.color }}
-                        />
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm truncate">
-                            {tarea.titulo}
-                          </p>
-                          <p className="text-xs text-gray-500">{tarea.materia.nombre}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-3">
-                        <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                            tarea.estado === 'En progreso'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-amber-100 text-amber-700'
-                          }`}
-                        >
-                          {tarea.estado}
-                        </span>
-                        <span
-                          className={`text-xs font-medium ${
-                            urgente ? 'text-red-600' : 'text-gray-500'
-                          }`}
-                        >
-                          {diasHasta(tarea.fechaLimite)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+        <div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">{title}</p>
+          <p className="text-xl font-black text-slate-900 leading-none">{value}</p>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-  color,
-  sub,
-  className = "",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string | number;
-  color: string;
-  sub: string;
-  className?: string;
-}) {
-  return (
-    <div className={`bg-white rounded-3xl border border-slate-100 shadow-premium p-6 group hover:-translate-y-1.5 hover:shadow-premium-hover hover:border-primary-200 transition-all duration-500 cursor-pointer overflow-hidden relative ${className}`}>
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-50 to-transparent rounded-bl-full -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
-      <div className="flex items-center gap-3 mb-4 relative z-10">
-        <div className={`w-11 h-11 rounded-2xl ${color} flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg shadow-black/5`}>
-          {icon}
-        </div>
-        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{label}</p>
+export default function Dashboard() {
+  const navigate = useNavigate();
+  // ... (existing state)
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [eventos, setEventos] = useState<EventoAcademico[]>([]);
+  const [materias, setMaterias] = useState<Materia[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [form, setForm] = useState({
+    materiaId: 0,
+    titulo: '',
+    tipo: 'Tarea' as any,
+    fecha: new Date().toISOString().slice(0, 16),
+    estado: 'Pendiente' as any,
+    horasEstimadas: 2
+  });
+
+  const fetchData = async () => {
+    try {
+      const [dash, evs, mats] = await Promise.all([
+        dashboardAPI.get(),
+        eventosAcademicosAPI.getAll(),
+        materiasAPI.getAll()
+      ]);
+      setData(dash);
+      setEventos(evs);
+      setMaterias(mats);
+      if (mats.length > 0 && form.materiaId === 0) {
+        setForm(prev => ({ ...prev, materiaId: mats[0].id }));
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleQuickAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await eventosAcademicosAPI.create(form);
+      setModalOpen(false);
+      setForm({ ...form, titulo: '', horasEstimadas: 2 });
+      fetchData();
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  };
+
+  const toggleComplete = async (ev: EventoAcademico) => {
+    const nuevoEstado = ev.estado === 'Completado' ? 'Pendiente' : 'Completado';
+    try {
+      await eventosAcademicosAPI.update(ev.id, { estado: nuevoEstado });
+      fetchData();
+    } catch (error) {
+      console.error('Error toggling task:', error);
+    }
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-8 h-8 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
       </div>
-      <p className="text-3xl font-black text-slate-900 tracking-tight">{value}</p>
-      <p className="text-[11px] font-medium text-slate-400 mt-2">{sub}</p>
+    );
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const limite = new Date();
+  limite.setDate(hoy.getDate() + 7);
+
+  const proximosEventos = eventos
+    .filter(ev => {
+      const fecha = new Date(ev.fecha);
+      return fecha >= hoy && fecha <= limite;
+    })
+    .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+
+  return (
+    <div className="space-y-8 pb-32">
+      {/* 0. Header Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+        <StatCard title="Promedio" value={data.estadisticas.promedioGeneral.toFixed(2)} icon={GraduationCap} color="indigo" />
+        <StatCard title="Aprobadas" value={`${data.estadisticas.materiasAprobadas}/${data.estadisticas.totalMaterias}`} icon={BookOpen} color="emerald" />
+        <StatCard title="Pendientes" value={proximosEventos.filter(e => e.tipo === 'Tarea' && e.estado === 'Pendiente').length.toString()} icon={CheckSquare} color="amber" />
+        <StatCard title="Nómina" value={data.estadisticas.materiasCursando.toString()} icon={Calendar} color="rose" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 space-y-8">
+          {/* 1. Time Budget - THE Semaphore */}
+          <section className="animate-fade-in">
+            <TimeBudgetLarge horasEstimadas={data.horasEstimadasSemana} />
+          </section>
+
+          {/* 3. Consolidated Action List (Tasks & Exams) */}
+          <section className="space-y-6 animate-fade-in-up">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <CheckSquare className="w-4 h-4" /> Próximos 7 Días
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              {proximosEventos.length === 0 ? (
+                <div className="text-center py-12 bg-slate-50 border border-dashed border-slate-200 rounded-[2rem]">
+                  <p className="text-slate-400 font-bold">Todo al día. 🚀</p>
+                </div>
+              ) : (
+                proximosEventos.map((ev) => (
+                  <div 
+                    key={ev.id}
+                    className={`group flex items-center gap-4 p-5 rounded-3xl border transition-all duration-300 ${
+                      ev.estado === 'Completado' 
+                        ? 'bg-slate-50/50 border-slate-100 opacity-60' 
+                        : 'bg-white border-slate-100 hover:border-primary-200 hover:shadow-premium'
+                    }`}
+                  >
+                    <button 
+                      onClick={() => toggleComplete(ev)}
+                      className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
+                        ev.estado === 'Completado'
+                          ? 'bg-green-500 border-green-500 text-white'
+                          : 'border-slate-200 text-transparent hover:border-primary-400'
+                      }`}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ev.materia.color }} />
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">
+                          {ev.materia.nombre}
+                        </span>
+                      </div>
+                      <h4 className={`font-bold text-slate-900 truncate ${ev.estado === 'Completado' ? 'line-through' : ''}`}>
+                        {ev.titulo}
+                      </h4>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className={`text-[10px] font-black uppercase ${
+                        ev.tipo === 'Parcial' ? 'text-red-500' : 'text-slate-500'
+                      }`}>
+                        {ev.tipo}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400">
+                        {new Date(ev.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+
+        <div className="lg:col-span-4 space-y-6">
+          {/* 2. Next Class / Today's Schedule */}
+          {data.proximaClase && (
+            <section className="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-6 animate-fade-in-up shadow-sm">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Próxima Clase</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-lg font-black text-slate-900 leading-tight">{data.proximaClase.materia}</p>
+                  <p className="text-primary-600 font-black mt-1">{data.proximaClase.hora}</p>
+                </div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-t border-slate-200 pt-4 flex items-center gap-2">
+                  <BookOpen className="w-3 h-3 text-primary-500" />
+                  {data.proximaClase.aulaText || 'Aula virtual'}
+                </p>
+                <button 
+                  onClick={() => navigate(`/materia/${data.proximaClase?.materiaId}`)}
+                  className="w-full py-3 bg-white border border-slate-200 rounded-xl text-xs font-black text-slate-600 hover:bg-slate-50 transition-all active:scale-[0.98]"
+                >
+                  Ir a Materia
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* Quick Stats Summary Widget */}
+          <div className="bg-slate-900 rounded-[2.5rem] p-6 text-white shadow-xl shadow-slate-200">
+            <h3 className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-4">Resumen Académico</h3>
+            <div className="space-y-4">
+               <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-bold text-white/60">Progreso Total</span>
+                  <span className="text-sm font-black text-white">{Math.round((data.estadisticas.materiasAprobadas / data.estadisticas.totalMaterias) * 100)}%</span>
+               </div>
+               <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary-500 rounded-full" 
+                    style={{ width: `${(data.estadisticas.materiasAprobadas / data.estadisticas.totalMaterias) * 100}%` }} 
+                  />
+               </div>
+               <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div className="p-3 bg-white/5 rounded-2xl">
+                     <p className="text-[10px] font-bold text-white/40 uppercase">Cursando</p>
+                     <p className="text-sm font-black">{data.estadisticas.materiasCursando}</p>
+                  </div>
+                  <div className="p-3 bg-white/5 rounded-2xl">
+                     <p className="text-[10px] font-bold text-white/40 uppercase">Créditos</p>
+                     <p className="text-sm font-black">---</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAB - Global Quick Add */}
+      <div className="fixed bottom-8 right-8 flex flex-col gap-4 items-end z-50 group">
+        <button 
+          onClick={() => setBulkModalOpen(true)}
+          className="w-12 h-12 bg-white text-slate-600 rounded-full shadow-premium flex items-center justify-center hover:scale-110 active:scale-90 transition-all border border-slate-100 opacity-0 translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto"
+          title="Carga Masiva"
+        >
+          <Zap className="w-5 h-5 text-amber-500" />
+        </button>
+        <button 
+          onClick={() => setModalOpen(true)}
+          className="w-16 h-16 bg-primary-600 text-white rounded-full shadow-premium flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-50"
+        >
+          <Plus className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
+        </button>
+      </div>
+
+      <BulkTaskModal 
+        isOpen={bulkModalOpen} 
+        onClose={() => setBulkModalOpen(false)} 
+        materias={materias} 
+        onSuccess={fetchData} 
+      />
+
+      {/* Quick Add Modal */}
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Acción Rápida">
+        <form onSubmit={handleQuickAdd} className="space-y-6">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Materia</label>
+            <div className="grid grid-cols-2 gap-2">
+              {materias.map(m => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setForm({ ...form, materiaId: m.id })}
+                  className={`flex items-center gap-2 p-4 rounded-2xl border transition-all text-left ${
+                    form.materiaId === m.id 
+                      ? 'border-primary-500 bg-primary-50 ring-4 ring-primary-500/5' 
+                      : 'border-slate-100 bg-slate-50/50 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
+                  <span className={`text-xs font-bold truncate ${form.materiaId === m.id ? 'text-primary-900' : 'text-slate-600'}`}>
+                    {m.nombre}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <input 
+            type="text" 
+            required
+            autoFocus
+            placeholder="¿Qué tienes que hacer?"
+            value={form.titulo}
+            onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+            className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] text-lg font-bold placeholder:text-slate-300 focus:ring-4 focus:ring-primary-500/10 outline-none"
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Tipo</label>
+              <select 
+                value={form.tipo}
+                onChange={(e) => setForm({ ...form, tipo: e.target.value as any })}
+                className="w-full px-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary-500/10 outline-none appearance-none"
+              >
+                <option value="Tarea">Tarea</option>
+                <option value="Parcial">Parcial</option>
+                <option value="Lectura">Lectura</option>
+                <option value="Trabajo Práctico">Trabajo Práctico</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Estimación (h)</label>
+              <input 
+                type="number" 
+                step="0.5"
+                value={form.horasEstimadas}
+                onChange={(e) => setForm({ ...form, horasEstimadas: parseFloat(e.target.value) })}
+                className="w-full px-4 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary-500/10 outline-none"
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            className="w-full py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-sm hover:bg-black transition-all shadow-xl shadow-slate-200 active:scale-95"
+          >
+            Guardar en el Calendario
+          </button>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
+function TimeBudgetLarge({ horasEstimadas }: { horasEstimadas: number }) {
+  const [fixedHours] = useState(() => {
+    const saved = localStorage.getItem('timeBudget_fixedHours');
+    return saved ? JSON.parse(saved) : { cursada: 20, suenoComida: 63, transporteOtros: 10 };
+  });
+
+  const horasOcupadas = Object.values(fixedHours).reduce((a: number, b: any) => a + Number(b), 0);
+  const horasDisponibles = 168 - horasOcupadas;
+  const porcentaje = Math.min((horasEstimadas / horasDisponibles) * 100, 100);
+  
+  let color = 'bg-green-500';
+  let textColor = 'text-green-600';
+  let label = 'Viable';
+  let sub = '¡Tienes tiempo suficiente! Sigue así.';
+  
+  if (porcentaje > 90) {
+    color = 'bg-red-500';
+    textColor = 'text-red-600';
+    label = 'Sobrecarga';
+    sub = 'Demasiadas tareas para tu tiempo libre.';
+  } else if (porcentaje > 70) {
+    color = 'bg-amber-500';
+    textColor = 'text-amber-600';
+    label = 'Ajustado';
+    sub = 'Cuidado, te queda poco margen.';
+  }
+
+  return (
+    <div className="bg-white border-2 border-slate-100 rounded-[3rem] p-10 shadow-premium relative overflow-hidden group">
+      <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+        <div className="relative w-32 h-32 shrink-0">
+          <svg className="w-full h-full -rotate-90">
+            <circle cx="64" cy="64" r="58" className="stroke-slate-100 fill-none" strokeWidth="12" />
+            <circle 
+              cx="64" cy="64" r="58" 
+              className={`${color} fill-none transition-all duration-1000 ease-out`} 
+              strokeWidth="12" 
+              strokeDasharray={364.4} 
+              strokeDashoffset={364.4 - (364.4 * porcentaje) / 100}
+              strokeLinecap="round"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-2xl font-black text-slate-900">{horasEstimadas}h</span>
+            <span className="text-[10px] font-black text-slate-400">ESTUDIO</span>
+          </div>
+        </div>
+
+        <div className="flex-1 text-center md:text-left space-y-2">
+          <div className="flex items-center justify-center md:justify-start gap-3">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Viabilidad Semanal</h2>
+            <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full bg-slate-50 ${textColor}`}>
+              {label}
+            </span>
+          </div>
+          <p className="text-slate-500 font-bold">{sub}</p>
+          <p className="text-xs font-bold text-slate-400">
+            {horasDisponibles}h de tiempo libre disponible esta semana.
+          </p>
+        </div>
+      </div>
+      
+      <div className="absolute top-0 right-0 p-8 opacity-5">
+        <Zap className="w-32 h-32" />
+      </div>
     </div>
   );
 }

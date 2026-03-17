@@ -133,6 +133,7 @@ export interface DashboardData {
     hora: string;
     aulaText?: string;
   } | null;
+  horasEstimadasSemana: number;
   videosPendientes: Video[];
   estadisticas: {
     totalMaterias: number;
@@ -203,6 +204,7 @@ export interface EventoAcademico {
   tipo: 'Tarea' | 'Lectura' | 'Trabajo Práctico' | 'Parcial';
   fecha: string;
   estado: 'Pendiente' | 'En progreso' | 'Completado';
+  horasEstimadas: number;
   createdAt: string;
   updatedAt: string;
   materia: { nombre: string; color: string };

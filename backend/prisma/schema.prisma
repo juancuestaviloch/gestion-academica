@@ -185,6 +185,7 @@ model EventoAcademico {
   tipo       String // Tarea | Lectura | Trabajo Práctico | Parcial
   fecha      DateTime
   estado     String   @default("Pendiente") // Pendiente | En progreso | Completado
+  horasEstimadas Float @default(0) // Horas estimadas para completar
   materia    Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

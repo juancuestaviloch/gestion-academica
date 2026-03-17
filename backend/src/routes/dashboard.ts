@@ -112,14 +112,24 @@ router.get('/', async (_req, res) => {
 
     // --- NUEVAS ESTADÍSTICAS PROACTIVAS ---
     
-    // 1. Promedio Académico (Basado en exámenes con nota)
+    // 1. Horas Estimadas Semanales (Time Budget)
+    const eventosSemana = await prisma.eventoAcademico.findMany({
+      where: {
+        fecha: { gte: todayStart, lte: in7Days },
+        estado: { not: 'Completado' }
+      },
+      select: { horasEstimadas: true }
+    });
+    const horasEstimadasSemana = eventosSemana.reduce((sum, ev) => sum + (ev.horasEstimadas || 0), 0);
+
+    // 2. Promedio Académico (Basado en exámenes con nota)
     const promedioStats = await prisma.examen.aggregate({
       _avg: { nota: true } as any,
       where: { nota: { not: null } } as any
     });
     const promedioGeneral = promedioStats._avg?.nota ? Math.round(promedioStats._avg.nota * 100) / 100 : 0;
 
-    // 2. Identificar Próxima Clase
+    // 3. Identificar Próxima Clase
     // Formatear hora actual HH:MM
     const currentHHMM = now.toTimeString().split(' ')[0].substring(0, 5);
     
@@ -150,6 +160,7 @@ router.get('/', async (_req, res) => {
       tareasUrgentes,
       eventosHoy,
       proximaClase,
+      horasEstimadasSemana,
       estadisticas: {
         totalMaterias,
         materiasCursando,

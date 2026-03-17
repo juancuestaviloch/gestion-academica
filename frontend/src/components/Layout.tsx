@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { notificacionesAPI } from '../api';
 import {
@@ -11,34 +11,29 @@ import {
   CheckSquare,
   UserCheck,
   StickyNote,
-  Target,
-  Menu,
-  X,
   GraduationCap,
-  PlaySquare,
   Bell,
   Zap,
-  TrendingUp,
   LayoutGrid,
   Wallet,
   Wrench,
+  Menu,
+  X,
+  ChevronLeft,
+  MoreHorizontal
 } from 'lucide-react';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/flashcards', label: 'Flashcards', icon: Brain },
+  { path: '/', label: 'Hoy', icon: LayoutDashboard },
   { path: '/materias', label: 'Materias', icon: BookOpen },
   { path: '/calendario', label: 'Calendario', icon: Calendar },
-  { path: '/tareas', label: 'Gestor Académico', icon: CheckSquare },
-  { path: '/asistencia', label: 'Asistencia', icon: UserCheck },
-  { path: '/apuntes', label: 'Apuntes', icon: StickyNote },
-  { path: '/videos', label: 'Videos', icon: PlaySquare },
-  { path: '/metas', label: 'Metas', icon: Target },
-  { path: '/roadmap', label: 'Proyección', icon: TrendingUp },
+  { path: '/apuntes', label: 'Pizarrón', icon: StickyNote },
   { path: '/plan', label: 'Plan de Estudios', icon: LayoutGrid },
-  { path: '/finanzas', label: 'Finanzas', icon: Wallet },
-  { path: '/focus', label: 'Focus', icon: Zap },
+  { path: '/focus', label: 'Focus Mode', icon: Zap },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/flashcards', label: 'Flashcards', icon: Brain },
+  { path: '/asistencia', label: 'Asistencia', icon: UserCheck },
+  { path: '/finanzas', label: 'Presupuesto', icon: Wallet },
   { path: '/herramientas', label: 'Herramientas', icon: Wrench },
 ];
 
@@ -47,170 +42,144 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     notificacionesAPI.getAll().then(setNotificaciones).catch(console.error);
-    // Refrezcar cada 5 minutos
     const interval = setInterval(() => {
       notificacionesAPI.getAll().then(setNotificaciones).catch(console.error);
     }, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
+  const isHome = location.pathname === '/';
   const currentPage = navItems.find((item) => item.path === location.pathname);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Overlay móvil */}
+    <div className="flex h-screen overflow-hidden bg-white">
+      {/* Sidebar Overlay (Mobile) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-sm lg:hidden transition-all duration-300"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Desktop/Mobile */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-surface-sidebar transform transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          sidebarOpen ? 'translate-x-0 shadow-2xl shadow-black/50' : '-translate-x-full lg:translate-x-0'
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-slate-50 border-r border-slate-100 transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } flex flex-col`}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500">
-            <GraduationCap className="w-6 h-6 text-white" />
+        <div className="px-6 py-6 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white shrink-0">
+            <GraduationCap className="w-5 h-5" />
           </div>
-          <div>
-            <h1 className="text-white font-bold text-lg leading-tight">UniTrack</h1>
-            <p className="text-primary-300 text-xs">Gestión Académica</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-slate-900 font-black text-sm tracking-tight leading-none truncate">UniTrack</h1>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Gestión Central</p>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="ml-auto lg:hidden text-white/60 hover:text-white"
-          >
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-400 p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Navegación */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={({ isActive }) =>
-                  `group relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    isActive
-                      ? 'bg-primary-600/20 text-white translate-x-1'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-primary-400' : ''}`} />
-                    <span>{item.label}</span>
-                    {isActive && (
-                      <span className="absolute left-0 w-1 h-5 bg-primary-500 rounded-full animate-fade-in" />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        {/* Footer sidebar */}
-        <div className="px-4 py-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-indigo-600 flex flex-col items-center justify-center text-white text-sm font-bold shadow-md shadow-black/20">
-              JC
-            </div>
-            <div>
-              <p className="text-white text-sm font-semibold truncate max-w-[150px]" title="Juan José Cuesta Viloch">Juan José</p>
-              <p className="text-primary-300 text-xs truncate max-w-[150px]" title="Licenciatura en Administración">Lic. en Administración</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Contenido principal */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4 flex items-center gap-4 shrink-0">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-gray-500 hover:text-gray-700"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <div className="flex-1 lg:flex-none">
-            <h2 className="text-lg lg:text-xl font-black text-slate-900 tracking-tight truncate">
-              {currentPage?.label || 'Dashboard'}
-            </h2>
-            <div className="flex items-center gap-2 mt-0.5 opacity-60">
-              <Calendar className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
-              <p className="text-[10px] lg:text-xs font-medium capitalize">
-                {new Date().toLocaleDateString('es-AR', {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                })}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 relative">
-            <button 
-              onClick={() => setNotifOpen(!notifOpen)}
-              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative transition-all active:scale-95"
-            >
-              <Bell className="w-5 h-5 lg:w-6 h-6" />
-              {notificaciones.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-pulse" />
-              )}
-            </button>
-            
-            {/* ... (Panel de Notificaciones queda igual) ... */}
-          </div>
-        </header>
-
-        {/* Main */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-24 lg:pb-8">
-          <div className="animate-fade-in max-w-7xl mx-auto">{children}</div>
-        </main>
-
-        {/* Bottom Navigation (Solo Mobile) */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-gray-200 px-6 py-3 flex items-center justify-between pb-safe">
-          {/* Dashboard, Materias, Calendario, Focus, Tareas */}
-          {[navItems[0], navItems[1], navItems[2], navItems[9], navItems[4]].map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center gap-1 transition-all ${
-                  isActive ? 'text-primary-600' : 'text-gray-400'
-                }`}
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black transition-all group ${
+                    isActive
+                      ? 'bg-white shadow-sm text-slate-900 ring-1 ring-slate-100'
+                      : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/50'
+                  }`
+                }
               >
-                <Icon className={`w-6 h-6 ${isActive ? 'scale-110' : ''}`} />
-                <span className="text-[10px] font-bold">{item.label}</span>
-                {isActive && (
-                  <div className="w-1 h-1 bg-primary-600 rounded-full animate-pop-in" />
-                )}
+                <Icon className={`w-4 h-4 shrink-0 transition-transform ${isActive ? 'text-slate-900' : 'group-hover:scale-110'}`} />
+                <span>{item.label}</span>
               </NavLink>
             );
           })}
-        </div>
+        </nav>
 
-        {/* FAB (Botón de Acción Rápida - Floating Action Button) */}
-        <button className="lg:hidden fixed right-6 bottom-24 w-14 h-14 rounded-full bg-primary-600 text-white shadow-premium flex items-center justify-center active:scale-90 transition-all z-40">
-          <GraduationCap className="w-6 h-6" />
-        </button>
+        <div className="p-4 border-t border-slate-100">
+           <div className="flex items-center gap-3 px-2 py-3 rounded-2xl bg-white ring-1 ring-slate-100">
+             <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-500 shrink-0">
+               JC
+             </div>
+             <div className="flex-1 min-w-0">
+                <p className="text-xs font-black text-slate-900 truncate">Juan José</p>
+                <p className="text-[10px] font-bold text-slate-400 truncate uppercase tracking-tighter">Plan 2024</p>
+             </div>
+           </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 lg:px-10 py-4 flex items-center justify-between shrink-0 leading-none">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            {!isHome && (
+              <button 
+                onClick={() => navigate(-1)}
+                className="hidden sm:flex p-2 hover:bg-slate-50 rounded-xl text-slate-400 transition-all active:scale-90"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div className="min-w-0">
+              <h2 className="text-slate-900 font-black text-sm sm:text-base tracking-tight truncate leading-none">
+                {currentPage?.label || 'Panel'}
+              </h2>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+             <button 
+              onClick={() => setNotifOpen(!notifOpen)}
+              className="p-2.5 rounded-2xl text-slate-400 hover:bg-slate-50 relative transition-all active:scale-95 border border-transparent hover:border-slate-100"
+            >
+              <Bell className="w-5 h-5" />
+              {notificaciones.length > 0 && (
+                <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-primary-600 border-2 border-white rounded-full" />
+              )}
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto bg-white/50">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 pb-32 lg:pb-12 animate-fade-in">
+            {children}
+          </div>
+        </main>
+
+        {/* Mobile Bottom Navigation (Always simplified) */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-2xl border-t border-slate-100 px-8 py-4 flex items-center justify-between pb-safe-offset-4">
+          <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+            <LayoutDashboard className="w-6 h-6 shrink-0" />
+          </NavLink>
+          <NavLink to="/materias" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+            <BookOpen className="w-6 h-6 shrink-0" />
+          </NavLink>
+          <NavLink to="/calendario" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+            <Calendar className="w-6 h-6 shrink-0" />
+          </NavLink>
+          <NavLink to="/plan" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>
+             <LayoutGrid className="w-6 h-6 shrink-0" />
+          </NavLink>
+        </div>
       </div>
     </div>
   );

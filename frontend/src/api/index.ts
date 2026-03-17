@@ -145,6 +145,8 @@ export const eventosAcademicosAPI = {
     return fetchAPI<EventoAcademico[]>(`/eventos-academicos?${query.toString()}`);
   },
   create: (data: Partial<EventoAcademico>) => fetchAPI<EventoAcademico>('/eventos-academicos', { method: 'POST', body: JSON.stringify(data) }),
+  bulkCreate: (data: { materiaId: number, tipo: string, fecha: string, titulos: string[] }) =>
+    fetchAPI<{ count: number }>('/eventos-academicos/bulk', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: Partial<EventoAcademico>) => fetchAPI<EventoAcademico>(`/eventos-academicos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => fetchAPI<void>(`/eventos-academicos/${id}`, { method: 'DELETE' }),
 };

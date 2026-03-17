@@ -14,7 +14,9 @@ import {
   ChevronRight,
   ChevronLeft,
   Trash2,
-  Edit2
+  Edit2,
+  Settings,
+  Zap
 } from 'lucide-react';
 import { eventosAcademicosAPI, materiasAPI } from '../api';
 import { EventoAcademico, Materia } from '../types';
@@ -31,6 +33,14 @@ export default function GestorTareas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMateria, setSelectedMateria] = useState<number | 'all'>('all');
   
+  // Time Budget State
+  const [fixedHours, setFixedHours] = useState({
+    cursada: 20,
+    suenoComida: 63,
+    transporteOtros: 10
+  });
+  const [showBudgetSettings, setShowBudgetSettings] = useState(false);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editando, setEditando] = useState<EventoAcademico | null>(null);
   const [form, setForm] = useState({
@@ -38,7 +48,8 @@ export default function GestorTareas() {
     titulo: '',
     tipo: 'Tarea' as typeof TIPOS[number],
     fecha: '',
-    estado: 'Pendiente' as typeof ESTADOS[number]
+    estado: 'Pendiente' as typeof ESTADOS[number],
+    horasEstimadas: 0
   });
 
   const fetchData = async () => {
@@ -62,7 +73,15 @@ export default function GestorTareas() {
 
   useEffect(() => {
     fetchData();
+    const saved = localStorage.getItem('timeBudget_fixedHours');
+    if (saved) setFixedHours(JSON.parse(saved));
   }, []);
+
+  const saveFixedHours = (newHours: typeof fixedHours) => {
+    setFixedHours(newHours);
+    localStorage.setItem('timeBudget_fixedHours', JSON.stringify(newHours));
+    setShowBudgetSettings(false);
+  };
 
   const sortedEventos = useMemo(() => {
     let filtered = eventos.filter(ev => 
@@ -74,8 +93,10 @@ export default function GestorTareas() {
 
   const proximos7Dias = useMemo(() => {
     const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
     const limite = new Date();
     limite.setDate(hoy.getDate() + 7);
+    limite.setHours(23, 59, 59, 999);
     
     return eventos
       .filter(ev => {
@@ -84,6 +105,56 @@ export default function GestorTareas() {
       })
       .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
   }, [eventos]);
+
+  const statsBudget = useMemo(() => {
+    const horasOcupadas = Object.values(fixedHours).reduce((a, b) => a + b, 0);
+    const horasDisponibles = 168 - horasOcupadas;
+    
+    // Normalizar fechas para comparación (Inicio de hoy -> Fin de 7 días)
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const proximaSemana = new Date();
+    proximaSemana.setDate(hoy.getDate() + 7);
+    proximaSemana.setHours(23, 59, 59, 999);
+    
+    const eventosFiltrados = eventos.filter(ev => {
+      const fecha = new Date(ev.fecha);
+      const enRango = fecha >= hoy && fecha <= proximaSemana;
+      const pendiente = ev.estado !== 'Completado';
+      return enRango && pendiente;
+    });
+
+    const horasEstimadasSemana = eventosFiltrados
+      .reduce((sum, ev) => sum + (Number(ev.horasEstimadas) || 0), 0);
+    
+    console.log('DEBUG Budget Calculation:', {
+      totalEventos: eventos.length,
+      eventosFiltradosCount: eventosFiltrados.length,
+      horasEstimadasSemana,
+      horasDisponibles,
+      rango: { hoy: hoy.toISOString(), proximaSemana: proximaSemana.toISOString() }
+    });
+
+    const porcentaje = Math.min((horasEstimadasSemana / horasDisponibles) * 100, 100);
+    let color = 'bg-green-500';
+    let textColor = 'text-green-600';
+    let label = 'Viable';
+    let sublabel = 'Tenés tiempo suficiente para estudiar.';
+    
+    if (porcentaje > 90) {
+      color = 'bg-red-500';
+      textColor = 'text-red-600';
+      label = 'Sobrecarga';
+      sublabel = '¡Alerta! No tenés horas suficientes para todo.';
+    } else if (porcentaje > 70) {
+      color = 'bg-amber-500';
+      textColor = 'text-amber-600';
+      label = 'Ajustado';
+      sublabel = 'Estás al límite de tu capacidad.';
+    }
+    
+    return { horasDisponibles, horasEstimadasSemana, porcentaje, color, textColor, label, sublabel };
+  }, [eventos, fixedHours]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +198,8 @@ export default function GestorTareas() {
       titulo: ev.titulo,
       tipo: ev.tipo,
       fecha: new Date(ev.fecha).toISOString().slice(0, 16),
-      estado: ev.estado
+      estado: ev.estado,
+      horasEstimadas: ev.horasEstimadas || 0
     });
     setModalOpen(true);
   };
@@ -163,6 +235,12 @@ export default function GestorTareas() {
                 {new Date(ev.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
               </span>
             </div>
+            {ev.horasEstimadas > 0 && (
+              <div className="flex items-center gap-1 text-primary-500">
+                <Zap className="w-3 h-3" />
+                <span className="text-[10px] font-bold">{ev.horasEstimadas}h</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -210,14 +288,13 @@ export default function GestorTareas() {
 
   return (
     <div className="space-y-8 pb-20">
-      {/* Header & Stats */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Gestor de Tareas</h2>
           <p className="text-gray-500 font-medium">Visualiza y organiza tus obligaciones académicas.</p>
         </div>
         <button 
-          onClick={() => { setEditando(null); setForm({ ...form, titulo: '', fecha: '' }); setModalOpen(true); }}
+          onClick={() => { setEditando(null); setForm({ ...form, titulo: '', fecha: '', horasEstimadas: 0 }); setModalOpen(true); }}
           className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-gray-200 active:scale-95"
         >
           <Plus className="w-5 h-5" />
@@ -225,7 +302,45 @@ export default function GestorTareas() {
         </button>
       </div>
 
-      {/* Urgencia - Próximos 7 días */}
+      <section className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group animate-fade-in">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="flex items-start gap-4">
+            <div className={`p-4 rounded-2xl ${statsBudget.color} text-white shadow-lg shadow-current/20`}>
+              <Zap className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-xl font-black text-gray-900">Presupuesto de Tiempo</h3>
+                <span className={`text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-gray-100 ${statsBudget.textColor}`}>
+                  {statsBudget.label}
+                </span>
+              </div>
+              <p className="text-sm text-gray-400 font-medium">{statsBudget.sublabel}</p>
+            </div>
+          </div>
+
+          <div className="flex-1 max-w-md">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estudio Estimado: {statsBudget.horasEstimadasSemana}h</span>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Disponible: {statsBudget.horasDisponibles}h</span>
+            </div>
+            <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className={`h-full ${statsBudget.color} transition-all duration-1000 ease-out`}
+                style={{ width: `${statsBudget.porcentaje}%` }}
+              />
+            </div>
+          </div>
+
+          <button 
+            onClick={() => setShowBudgetSettings(true)}
+            className="p-3 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-2xl transition-all"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
+      </section>
+
       {proximos7Dias.length > 0 && (
         <section className="animate-fade-in-up">
           <div className="flex items-center gap-2 mb-4">
@@ -263,7 +378,6 @@ export default function GestorTareas() {
         </section>
       )}
 
-      {/* Controls & Search */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl flex-1 w-full md:w-auto">
           <Search className="w-4 h-4 text-gray-400" />
@@ -308,7 +422,6 @@ export default function GestorTareas() {
         </div>
       </div>
 
-      {/* Views */}
       {view === 'kanban' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {ESTADOS.map(estado => (
@@ -413,7 +526,6 @@ export default function GestorTareas() {
         </div>
       )}
 
-      {/* Modal Form */}
       <Modal 
         isOpen={modalOpen} 
         onClose={() => { setModalOpen(false); setEditando(null); }} 
@@ -478,17 +590,34 @@ export default function GestorTareas() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Fecha Límite</label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input 
-                type="datetime-local" 
-                required
-                value={form.fecha}
-                onChange={(e) => setForm({ ...form, fecha: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary-500 outline-none"
-              />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Fecha Límite</label>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                  type="datetime-local" 
+                  required
+                  value={form.fecha}
+                  onChange={(e) => setForm({ ...form, fecha: e.target.value })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Horas Estimadas</label>
+              <div className="relative">
+                <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                  type="number" 
+                  step="0.5"
+                  min="0"
+                  required
+                  value={form.horasEstimadas}
+                  onChange={(e) => setForm({ ...form, horasEstimadas: parseFloat(e.target.value) || 0 })}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+              </div>
             </div>
           </div>
 
@@ -508,6 +637,71 @@ export default function GestorTareas() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal 
+        isOpen={showBudgetSettings} 
+        onClose={() => setShowBudgetSettings(false)} 
+        title="Configurar Horarios Fijos Semanales"
+      >
+        <div className="space-y-6">
+          <p className="text-sm text-gray-500 font-medium">Define cuántas horas dedicas a estas actividades por semana para calcular tu tiempo de estudio libre.</p>
+          
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Cursada Semanal</label>
+                <span className="text-xs font-black text-gray-900">{fixedHours.cursada}h</span>
+              </div>
+              <input 
+                type="range" min="0" max="60" 
+                value={fixedHours.cursada} 
+                onChange={(e) => setFixedHours({...fixedHours, cursada: parseInt(e.target.value)})}
+                className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Sueño y Comidas</label>
+                <span className="text-xs font-black text-gray-900">{fixedHours.suenoComida}h</span>
+              </div>
+              <input 
+                type="range" min="0" max="120" 
+                value={fixedHours.suenoComida} 
+                onChange={(e) => setFixedHours({...fixedHours, suenoComida: parseInt(e.target.value)})}
+                className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
+              />
+            </div>
+
+            <div>
+              <div className="flex justify-between mb-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Transporte y Otros</label>
+                <span className="text-xs font-black text-gray-900">{fixedHours.transporteOtros}h</span>
+              </div>
+              <input 
+                type="range" min="0" max="40" 
+                value={fixedHours.transporteOtros} 
+                onChange={(e) => setFixedHours({...fixedHours, transporteOtros: parseInt(e.target.value)})}
+                className="w-full h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
+              />
+            </div>
+          </div>
+
+          <div className="p-4 bg-primary-50 rounded-2xl border border-primary-100">
+            <div className="flex justify-between items-center text-primary-900">
+              <span className="text-xs font-black uppercase tracking-widest">Estudio Disponible:</span>
+              <span className="text-lg font-black">{168 - (fixedHours.cursada + fixedHours.suenoComida + fixedHours.transporteOtros)}h</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => saveFixedHours(fixedHours)}
+            className="w-full px-6 py-4 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all active:scale-95 shadow-xl shadow-gray-200"
+          >
+            Guardar Configuración
+          </button>
+        </div>
       </Modal>
     </div>
   );
