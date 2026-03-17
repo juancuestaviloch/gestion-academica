@@ -29,6 +29,8 @@ router.get('/:id', async (req, res) => {
         tareas: { orderBy: { fechaLimite: 'asc' } },
         asistencias: { orderBy: { fecha: 'desc' } },
         apuntes: { orderBy: { createdAt: 'desc' } },
+        videos: { orderBy: { createdAt: 'desc' } },
+        flashcards: { orderBy: { proximoRepaso: 'asc' } },
       },
     });
     if (!materia) {

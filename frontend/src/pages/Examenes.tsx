@@ -13,7 +13,7 @@ export default function Examenes() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editando, setEditando] = useState<Examen | null>(null);
   const [form, setForm] = useState({
-    materiaId: 0, fecha: '', tipo: 'Parcial' as string, aula: '', notas: '',
+    materiaId: 0, fecha: '', tipo: 'Parcial' as string, aula: '', notas: '', nota: '',
   });
 
   const fetchData = async () => {
@@ -26,7 +26,7 @@ export default function Examenes() {
   useEffect(() => { fetchData(); }, []);
 
   const resetForm = () => {
-    setForm({ materiaId: materias[0]?.id || 0, fecha: '', tipo: 'Parcial', aula: '', notas: '' });
+    setForm({ materiaId: materias[0]?.id || 0, fecha: '', tipo: 'Parcial', aula: '', notas: '', nota: '' });
     setEditando(null);
   };
 
@@ -45,6 +45,7 @@ export default function Examenes() {
       tipo: ex.tipo,
       aula: ex.aula || '',
       notas: ex.notas || '',
+      nota: ex.nota?.toString() || '',
     });
     setModalOpen(true);
   };
@@ -139,6 +140,12 @@ export default function Examenes() {
                     </p>
                     {examen.aula && <p className="text-xs text-gray-400 mt-0.5">📍 {examen.aula}</p>}
                     {examen.notas && <p className="text-xs text-gray-400 mt-0.5">📝 {examen.notas}</p>}
+                    {examen.nota !== null && (
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-lg border border-green-100">
+                        <span className="text-[10px] font-black uppercase tracking-wider opacity-60">Nota:</span>
+                        <span className="text-sm font-bold">{examen.nota}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="text-right">
                     <span className={`text-sm font-bold ${
@@ -202,6 +209,13 @@ export default function Examenes() {
               onChange={(e) => setForm({ ...form, notas: e.target.value })}
               className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none resize-none"
               rows={3} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Calificación (Opcional)</label>
+            <input type="number" step="0.1" min="0" max="10" value={form.nota}
+              onChange={(e) => setForm({ ...form, nota: e.target.value })}
+              placeholder="Ej: 8.5"
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => { setModalOpen(false); resetForm(); }}

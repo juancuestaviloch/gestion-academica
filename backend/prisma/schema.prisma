@@ -25,6 +25,8 @@ model Materia {
   asistencias  Asistencia[]
   apuntes      Apunte[]
   videos       Video[]
+  sesiones     SesionEstudio[]
+  flashcards   Flashcard[]
 }
 
 model Horario {
@@ -122,4 +124,26 @@ model Video {
   visto     Boolean  @default(false)
   materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model SesionEstudio {
+  id        Int      @id @default(autoincrement())
+  materiaId Int?
+  duracion  Int // Minutos
+  fecha     DateTime @default(now())
+  materia   Materia? @relation(fields: [materiaId], references: [id])
+}
+
+model Flashcard {
+  id              Int      @id @default(autoincrement())
+  materiaId       Int
+  pregunta        String
+  respuesta       String
+  intervalo       Int      @default(0)
+  factorFacilidad Float    @default(2.5)
+  repasos         Int      @default(0)
+  proximoRepaso   DateTime @default(now())
+  materia         Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

@@ -10,6 +10,8 @@ import eventosRouter from './routes/eventos';
 import dashboardRouter from './routes/dashboard';
 import videosRouter from './routes/videos';
 import notificacionesRouter from './routes/notificaciones';
+import sesionesRouter from './routes/sesiones';
+import flashcardsRouter from './routes/flashcards';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -28,6 +30,8 @@ app.use('/api/eventos', eventosRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/videos', videosRouter);
 app.use('/api/notificaciones', notificacionesRouter);
+app.use('/api/sesiones', sesionesRouter);
+app.use('/api/flashcards', flashcardsRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

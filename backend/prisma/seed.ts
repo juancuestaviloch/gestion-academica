@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 SEED VERSION: 2026-03-16-CURRICULUM-FIX');
   console.log('🌱 Iniciando seed de datos...');
 
   // Limpiar datos existentes
@@ -16,83 +17,36 @@ async function main() {
   await prisma.meta.deleteMany();
   await prisma.materia.deleteMany();
 
-  // Crear materias con horarios y bibliografía
-  const algoritmos = await prisma.materia.create({
+  // --- MATERIAS 1ER CUATRIMESTRE ---
+  const matematica1 = await prisma.materia.create({
     data: {
-      nombre: 'Algoritmos y Estructuras de Datos',
-      profesor: 'Dr. Carlos Méndez',
+      nombre: 'Matemática 1',
+      profesor: 'Daniel Guzmán',
       estado: 'Cursando',
+      cuatrimestre: '1er Cuatrimestre',
+      anio: 1,
       color: '#4F46E5',
       horarios: {
         create: [
-          { diaSemana: 'Lunes', horaInicio: '08:00', horaFin: '10:00' },
-          { diaSemana: 'Miércoles', horaInicio: '08:00', horaFin: '10:00' },
-        ],
-      },
-      bibliografia: {
-        create: [
-          { nombre: 'Introduction to Algorithms - Cormen', url: 'https://mitpress.mit.edu/algorithms/' },
-          { nombre: 'Apunte de cátedra - Complejidad', url: null },
+          { diaSemana: 'Lunes', horaInicio: '11:00', horaFin: '12:30', tipo: 'Teoría', aula: 'Aula 3' },
+          { diaSemana: 'Miércoles', horaInicio: '11:00', horaFin: '12:30', tipo: 'Práctica', aula: 'Aula 3' },
         ],
       },
     },
   });
 
-  const calculo = await prisma.materia.create({
+  const introProg = await prisma.materia.create({
     data: {
-      nombre: 'Análisis Matemático II',
-      profesor: 'Dra. Laura Fernández',
+      nombre: 'Introducción a la Programación',
+      profesor: 'Dra. Elena Rossi',
       estado: 'Cursando',
+      cuatrimestre: '1er Cuatrimestre',
+      anio: 1,
       color: '#059669',
       horarios: {
         create: [
-          { diaSemana: 'Martes', horaInicio: '10:00', horaFin: '12:00' },
-          { diaSemana: 'Jueves', horaInicio: '10:00', horaFin: '12:00' },
-        ],
-      },
-      bibliografia: {
-        create: [
-          { nombre: 'Análisis Matemático - Marsden & Tromba', url: 'https://www.amazon.com/dp/0716749645' },
-          { nombre: 'Guía de ejercicios Unidad 1-4', url: null },
-        ],
-      },
-    },
-  });
-
-  const baseDatos = await prisma.materia.create({
-    data: {
-      nombre: 'Bases de Datos',
-      profesor: 'Ing. Roberto Martínez',
-      estado: 'Cursando',
-      color: '#DC2626',
-      horarios: {
-        create: [
-          { diaSemana: 'Miércoles', horaInicio: '14:00', horaFin: '17:00' },
-        ],
-      },
-      bibliografia: {
-        create: [
-          { nombre: 'Database System Concepts - Silberschatz', url: 'https://www.db-book.com/' },
-          { nombre: 'Documentación oficial PostgreSQL', url: 'https://www.postgresql.org/docs/' },
-        ],
-      },
-    },
-  });
-
-  const sistemas = await prisma.materia.create({
-    data: {
-      nombre: 'Sistemas Operativos',
-      profesor: 'Dr. Andrés López',
-      estado: 'Cursando',
-      color: '#D97706',
-      horarios: {
-        create: [
-          { diaSemana: 'Viernes', horaInicio: '08:00', horaFin: '11:00' },
-        ],
-      },
-      bibliografia: {
-        create: [
-          { nombre: 'Operating Systems - Tanenbaum', url: 'https://www.pearson.com/tanenbaum' },
+          { diaSemana: 'Martes', horaInicio: '08:30', horaFin: '11:30', tipo: 'Teórico-Práctico', aula: 'Lab 1' },
+          { diaSemana: 'Jueves', horaInicio: '08:30', horaFin: '11:30', tipo: 'Práctica', aula: 'Lab 1' },
         ],
       },
     },
@@ -101,13 +55,66 @@ async function main() {
   const algebra = await prisma.materia.create({
     data: {
       nombre: 'Álgebra Lineal',
-      profesor: 'Dra. María García',
-      estado: 'Aprobada',
+      profesor: 'Ing. Marcos Paz',
+      estado: 'Cursando',
+      cuatrimestre: '1er Cuatrimestre',
+      anio: 1,
       color: '#7C3AED',
-      horarios: { create: [] },
-      bibliografia: {
+      horarios: {
         create: [
-          { nombre: 'Álgebra Lineal - Grossman', url: null },
+          { diaSemana: 'Miércoles', horaInicio: '14:00', horaFin: '17:00', tipo: 'Teoría', aula: 'Aula 5' },
+          { diaSemana: 'Viernes', horaInicio: '14:00', horaFin: '17:00', tipo: 'Práctica', aula: 'Aula 5' },
+        ],
+      },
+    },
+  });
+
+  // --- MATERIAS 2DO CUATRIMESTRE ---
+  const matematica2 = await prisma.materia.create({
+    data: {
+      nombre: 'Matemática 2',
+      profesor: 'Dr. Julián Soria',
+      estado: 'Cursando',
+      cuatrimestre: '2do Cuatrimestre',
+      anio: 1,
+      color: '#3B82F6',
+      horarios: {
+        create: [
+          { diaSemana: 'Lunes', horaInicio: '11:00', horaFin: '13:00', tipo: 'Teoría', aula: 'Aula 8' },
+          { diaSemana: 'Miércoles', horaInicio: '11:00', horaFin: '13:00', tipo: 'Práctica', aula: 'Aula 8' },
+        ],
+      },
+    },
+  });
+
+  const algoritmos = await prisma.materia.create({
+    data: {
+      nombre: 'Algoritmos y Estructuras de Datos',
+      profesor: 'Ing. Martina Vales',
+      estado: 'Cursando',
+      cuatrimestre: '2do Cuatrimestre',
+      anio: 1,
+      color: '#10B981',
+      horarios: {
+        create: [
+          { diaSemana: 'Martes', horaInicio: '09:00', horaFin: '12:00', tipo: 'Teórico-Práctico', aula: 'Lab 2' },
+          { diaSemana: 'Jueves', horaInicio: '09:00', horaFin: '12:00', tipo: 'Práctica', aula: 'Lab 3' },
+        ],
+      },
+    },
+  });
+
+  const arquitectura = await prisma.materia.create({
+    data: {
+      nombre: 'Arquitectura de Computadoras',
+      profesor: 'Dr. Roberto Bosch',
+      estado: 'Cursando',
+      cuatrimestre: '2do Cuatrimestre',
+      anio: 1,
+      color: '#F59E0B',
+      horarios: {
+        create: [
+          { diaSemana: 'Viernes', horaInicio: '08:00', horaFin: '12:00', tipo: 'Teoría', aula: 'Anfiteatro B' },
         ],
       },
     },
@@ -127,39 +134,25 @@ async function main() {
   await prisma.examen.createMany({
     data: [
       {
-        materiaId: algoritmos.id,
-        fecha: addDays(today, 5),
+        materiaId: matematica1.id,
+        fecha: addDays(today, 15),
         tipo: 'Parcial',
-        aula: 'Aula 301',
-        notas: 'Temas: Grafos, Árboles, Hashing',
+        aula: 'Aula 3',
+        notas: 'Unidades 1 y 2: Límites y Continuidad',
       },
       {
-        materiaId: calculo.id,
-        fecha: addDays(today, 3),
+        materiaId: introProg.id,
+        fecha: addDays(today, 20),
         tipo: 'Parcial',
-        aula: 'Aula 105',
-        notas: 'Integrales dobles y triples',
+        aula: 'Lab 1',
+        notas: 'Estructuras de control y tipos de datos',
       },
       {
-        materiaId: baseDatos.id,
-        fecha: addDays(today, 14),
+        materiaId: algebra.id,
+        fecha: addDays(today, 25),
         tipo: 'Parcial',
-        aula: 'Lab 2',
-        notas: 'Normalización y SQL avanzado',
-      },
-      {
-        materiaId: sistemas.id,
-        fecha: addDays(today, 21),
-        tipo: 'Final',
-        aula: 'Aula Magna',
-        notas: 'Todos los temas del cuatrimestre',
-      },
-      {
-        materiaId: algoritmos.id,
-        fecha: addDays(today, 30),
-        tipo: 'Recuperatorio',
-        aula: 'Aula 301',
-        notas: 'Para quienes no aprueben el 1er parcial',
+        aula: 'Aula 5',
+        notas: 'Sistemas de ecuaciones lineales',
       },
     ],
   });
@@ -168,53 +161,39 @@ async function main() {
   await prisma.tarea.createMany({
     data: [
       {
-        materiaId: algoritmos.id,
-        titulo: 'TP2: Implementar algoritmo de Dijkstra',
-        descripcion: 'Implementar en C++ el algoritmo de Dijkstra con cola de prioridad. Entregar por campus virtual.',
-        fechaLimite: addDays(today, 2),
+        materiaId: matematica1.id,
+        titulo: 'Guía 1: Sucesiones',
+        descripcion: 'Resolver ejercicios del 1 al 20 de la guía práctica.',
+        fechaLimite: addDays(today, 5),
         estado: 'En progreso',
       },
       {
-        materiaId: calculo.id,
-        titulo: 'Guía de ejercicios Unidad 3',
-        descripcion: 'Resolver ejercicios 1 al 15 de la guía de integrales múltiples.',
-        fechaLimite: addDays(today, 4),
-        estado: 'Pendiente',
-      },
-      {
-        materiaId: baseDatos.id,
-        titulo: 'Diseño de esquema E-R para proyecto',
-        descripcion: 'Diseñar el modelo Entidad-Relación del proyecto integrador. Incluir diagrama y documentación.',
-        fechaLimite: addDays(today, 7),
-        estado: 'Pendiente',
-      },
-      {
-        materiaId: sistemas.id,
-        titulo: 'Informe: Comparación de schedulers',
-        descripcion: 'Comparar FCFS, SJF, Round Robin y Priority scheduling con ejemplos numéricos.',
+        materiaId: introProg.id,
+        titulo: 'TP1: Calculadora básica',
+        descripcion: 'Implementar una calculadora que maneje las 4 operaciones básicas en Python.',
         fechaLimite: addDays(today, 10),
         estado: 'Pendiente',
       },
       {
-        materiaId: algoritmos.id,
-        titulo: 'TP1: Análisis de complejidad',
-        descripcion: 'Análisis Big-O de 10 algoritmos dados en clase.',
-        fechaLimite: addDays(today, -3),
-        estado: 'Entregada',
+        materiaId: algebra.id,
+        titulo: 'Trabajo Práctico: Vectores',
+        descripcion: 'Operaciones con vectores en R2 y R3.',
+        fechaLimite: addDays(today, 7),
+        estado: 'Pendiente',
       },
     ],
   });
 
   // Crear asistencias (últimas semanas)
-  const materiasActivas = [algoritmos, calculo, baseDatos, sistemas];
+  const materiasActivas = [matematica1, introProg, algebra];
   for (const materia of materiasActivas) {
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
       const fechaClase = addDays(today, -i * 3);
       await prisma.asistencia.create({
         data: {
           materiaId: materia.id,
           fecha: fechaClase,
-          presente: Math.random() > 0.15, // ~85% asistencia
+          presente: Math.random() > 0.1, // ~90% asistencia
         },
       });
     }
@@ -224,60 +203,41 @@ async function main() {
   await prisma.apunte.createMany({
     data: [
       {
-        materiaId: algoritmos.id,
-        titulo: 'Resumen: Grafos y recorridos',
-        contenido: '# Grafos\n\n## Definición\nUn grafo G = (V, E) consiste en un conjunto de vértices V y aristas E.\n\n## Recorridos\n- **BFS**: Recorrido en anchura, usa cola\n- **DFS**: Recorrido en profundidad, usa pila\n\n## Aplicaciones\n- Camino más corto\n- Detección de ciclos\n- Componentes conexas',
+        materiaId: matematica1.id,
+        titulo: 'Concepto de Límite',
+        contenido: '# Límites\nDefinición formal de límite y propiedades básicas.',
         tipo: 'nota',
       },
       {
-        materiaId: calculo.id,
-        titulo: 'Fórmulas integrales múltiples',
-        contenido: '# Integrales Múltiples\n\n## Integral doble\n$$\\iint_R f(x,y) \\, dA$$\n\n## Cambio a polares\n$$x = r\\cos\\theta, \\quad y = r\\sin\\theta$$\n$$dA = r \\, dr \\, d\\theta$$',
+        materiaId: introProg.id,
+        titulo: 'Lógica Booleana',
+        contenido: '# Lógica\nTablas de verdad y operadores AND, OR, NOT.',
         tipo: 'nota',
       },
       {
-        materiaId: baseDatos.id,
-        titulo: 'Tutorial SQL Joins',
-        contenido: '',
-        tipo: 'link',
-        url: 'https://www.w3schools.com/sql/sql_join.asp',
-      },
-      {
-        materiaId: sistemas.id,
-        titulo: 'Video: Procesos e hilos',
-        contenido: 'Video explicativo sobre la diferencia entre procesos e hilos en Linux.',
-        tipo: 'link',
-        url: 'https://www.youtube.com/watch?v=example',
-      },
-      {
-        materiaId: algoritmos.id,
-        titulo: 'Cheatsheet Big-O',
-        contenido: '# Notación Big-O\n\n| Complejidad | Nombre | Ejemplo |\n|---|---|---|\n| O(1) | Constante | Acceso a array |\n| O(log n) | Logarítmica | Búsqueda binaria |\n| O(n) | Lineal | Recorrido de array |\n| O(n log n) | Log-lineal | Merge sort |\n| O(n²) | Cuadrática | Bubble sort |',
+        materiaId: algebra.id,
+        titulo: 'Matrices: Introducción',
+        contenido: '# Matrices\nDefinición, suma y multiplicación de matrices.',
         tipo: 'nota',
       },
     ],
   });
 
-  // Crear eventos manuales
+  // Crear eventos manuales (incluyendo feriados si es necesario, pero ya los agregamos antes)
+  // Mantendré los eventos de tutoría
   await prisma.evento.createMany({
     data: [
       {
-        titulo: 'Tutoría grupal de Algoritmos',
+        titulo: 'Tutoría Matemática 1',
         fecha: addDays(today, 1),
-        descripcion: 'Tutoría en el lab 3, traer notebook',
+        descripcion: 'Repaso de funciones trigonométricas',
         color: '#4F46E5',
       },
       {
-        titulo: 'Inscripción a finales',
+        titulo: 'Charla: Salida laboral en IT',
         fecha: addDays(today, 8),
-        descripcion: 'Cierre de inscripción a exámenes finales del cuatrimestre',
+        descripcion: 'Salón de actos, 18:00 hs',
         color: '#DC2626',
-      },
-      {
-        titulo: 'Feriado - No hay clases',
-        fecha: addDays(today, 12),
-        descripcion: 'Día no laborable',
-        color: '#6B7280',
       },
     ],
   });
@@ -286,37 +246,30 @@ async function main() {
   await prisma.meta.createMany({
     data: [
       {
-        titulo: 'Aprobar 4 materias este cuatrimestre',
-        descripcion: 'Aprobar Algoritmos, Análisis II, Bases de Datos y Sistemas Operativos',
-        objetivo: 4,
+        titulo: 'Completar 1er Año',
+        descripcion: 'Aprobar todas las materias del primer año sin finales pendientes',
+        objetivo: 6,
         progreso: 0,
-        cuatrimestre: '1C 2026',
+        cuatrimestre: 'Ciclo 2026',
       },
       {
-        titulo: 'Completar todas las tareas a tiempo',
-        descripcion: 'Entregar el 100% de los TPs y guías antes de la fecha límite',
-        objetivo: 10,
-        progreso: 3,
-        cuatrimestre: '1C 2026',
-      },
-      {
-        titulo: 'Mantener asistencia arriba del 80%',
-        descripcion: 'Asistir regularmente a todas las clases de las materias cursando',
+        titulo: 'Dominar Python',
+        descripcion: 'Aprender las bases sólidas de programación con Python',
         objetivo: 100,
-        progreso: 85,
+        progreso: 20,
         cuatrimestre: '1C 2026',
       },
     ],
   });
 
-  console.log('✅ Seed completado exitosamente!');
-  console.log('   - 5 materias (4 cursando, 1 aprobada)');
-  console.log('   - 5 exámenes');
-  console.log('   - 5 tareas');
-  console.log('   - 32 registros de asistencia');
-  console.log('   - 5 apuntes');
-  console.log('   - 3 eventos');
-  console.log('   - 3 metas');
+  console.log('✅ Seed completado exitosamente con Currículum de 1er Año!');
+  console.log('   - 6 materias (3 cursando 1C, 3 pendientes 2C)');
+  console.log('   - 3 exámenes');
+  console.log('   - 3 tareas');
+  console.log('   - 18 registros de asistencia');
+  console.log('   - 3 apuntes');
+  console.log('   - 2 eventos');
+  console.log('   - 2 metas');
 }
 
 main()

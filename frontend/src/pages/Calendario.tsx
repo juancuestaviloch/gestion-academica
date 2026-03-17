@@ -16,6 +16,7 @@ export default function Calendario() {
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [cuatrimestre, setCuatrimestre] = useState<'Todas' | '1er Cuatrimestre' | '2do Cuatrimestre'>('Todas');
   const [eventoForm, setEventoForm] = useState({ titulo: '', fecha: '', descripcion: '', color: '#6366F1', esParo: false });
 
   useEffect(() => {
@@ -43,14 +44,29 @@ export default function Calendario() {
     const rangeStart = view === 'week' ? getWeekStart(currentDate) : startOfMonth;
     const rangeEnd = view === 'week' ? new Date(getWeekStart(currentDate).getTime() + 6 * 86400000) : endOfMonth;
 
-    mats.filter((m: Materia) => m.estado === 'Cursando').forEach((m: Materia) => {
+    mats
+      .filter((m: Materia) => m.estado === 'Cursando')
+      .filter((m: Materia) => cuatrimestre === 'Todas' || m.cuatrimestre === cuatrimestre)
+      .forEach((m: Materia) => {
       m.horarios.forEach((h) => {
         const dayNum = DIAS_MAP[h.diaSemana];
         if (dayNum === undefined) return;
 
         const d = new Date(rangeStart);
         while (d <= rangeEnd) {
-          if (d.getDay() === dayNum) {
+          const month = d.getMonth();
+          const is1C = m.cuatrimestre === '1er Cuatrimestre';
+          const is2C = m.cuatrimestre === '2do Cuatrimestre';
+          const isAnual = m.cuatrimestre === 'Anual';
+
+          // Filtrar por meses reales de cursada
+          // 1C: Marzo (2) a Julio (6)
+          // 2C: Agosto (7) a Diciembre (11)
+          const inSemester = isAnual || 
+            (is1C && month >= 2 && month <= 6) || 
+            (is2C && month >= 7 && month <= 11);
+
+          if (d.getDay() === dayNum && inSemester) {
             calEvents.push({
               id: `clase-${m.id}-${d.toISOString()}`,
               title: m.nombre,
@@ -149,11 +165,18 @@ export default function Calendario() {
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevDaysInMonth = new Date(year, month, 0).getDate();
     const today = new Date();
 
     const cells = [];
-    for (let i = 0; i < firstDay; i++) {
-      cells.push(<div key={`empty-${i}`} className="h-24 lg:h-28" />);
+    // Previous month days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const d = prevDaysInMonth - i;
+      cells.push(
+        <div key={`prev-${d}`} className="h-16 lg:h-28 border border-gray-50 bg-gray-50/30 opacity-40 p-1 rounded-lg">
+          <span className="text-[10px] text-gray-400 font-medium">{d}</span>
+        </div>
+      );
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -166,17 +189,19 @@ export default function Calendario() {
         <div
           key={d}
           onClick={() => { setSelectedDate(date); }}
-          className={`h-24 lg:h-28 border p-1 rounded-lg cursor-pointer transition-colors ${
+          className={`h-16 lg:h-28 border p-1 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-95 ${
             isStrikeDay 
               ? 'bg-red-50 hover:bg-red-100 border-red-200 shadow-sm shadow-red-100/50' 
               : isToday 
-                ? 'bg-primary-50 hover:bg-primary-100 border-primary-200' 
-                : 'border-gray-100 hover:bg-gray-50'
+                ? 'bg-primary-50 hover:bg-primary-100 border-primary-200 ring-1 ring-primary-200' 
+                : 'border-gray-100 hover:bg-gray-50 hover:shadow-md'
           }`}
         >
-          <span className={`text-xs font-medium ${isStrikeDay ? 'bg-red-600 text-white px-1.5 py-0.5 rounded-full' : isToday ? 'bg-primary-600 text-white px-1.5 py-0.5 rounded-full' : 'text-gray-600'}`}>
-            {d}
-          </span>
+          <div className="flex justify-between items-start">
+            <span className={`text-[10px] lg:text-xs font-bold ${isStrikeDay ? 'bg-red-600 text-white px-1.5 py-0.5 rounded-md' : isToday ? 'bg-primary-600 text-white px-1.5 py-0.5 rounded-md' : 'text-gray-500'}`}>
+              {d}
+            </span>
+          </div>
           <div className="mt-1 space-y-0.5 overflow-hidden">
             {dayEvents.slice(0, 3).map((ev) => (
               <div
@@ -250,13 +275,68 @@ export default function Calendario() {
     );
   };
 
+  const renderMobileListView = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const date = new Date(year, month, i + 1);
+          const dayEvents = getEventsForDate(date);
+          if (dayEvents.length === 0) return null;
+          
+          return (
+            <div key={i} className="flex gap-4 border-l-2 border-primary-200 pl-4 py-1">
+              <div className="shrink-0 w-10 text-center pt-1">
+                <p className="text-[10px] lg:text-xs uppercase font-bold text-gray-400">{DIAS_SEMANA[date.getDay()]}</p>
+                <p className="text-xl font-black text-gray-800 leading-none">{i + 1}</p>
+              </div>
+              <div className="flex-1 space-y-2">
+                {dayEvents.map(ev => (
+                  <div 
+                    key={ev.id} 
+                    onClick={() => { setSelectedDate(date); }}
+                    className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100 shadow-sm active:bg-gray-100 transition-all hover:border-primary-100"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: ev.color }} />
+                        <span className="text-sm font-bold text-gray-900 truncate">{ev.title}</span>
+                      </div>
+                      <span className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        ev.type === 'clase' ? 'bg-blue-100 text-blue-700' :
+                        ev.type === 'examen' ? 'bg-red-100 text-red-700' :
+                        ev.type === 'tarea' ? 'bg-amber-100 text-amber-700' :
+                        'bg-purple-100 text-purple-700'
+                      }`}>
+                        {ev.type}
+                      </span>
+                    </div>
+                    {ev.time && <p className="text-xs text-gray-600 font-medium mt-1 inline-flex items-center gap-1">
+                      <span className="opacity-60">🕒</span> {ev.time}
+                    </p>}
+                    {ev.aula && <p className="text-xs text-primary-700 font-bold mt-1 inline-flex items-center gap-1 ml-3">
+                      <span className="opacity-60">📍</span> {ev.aula}
+                    </p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const monthLabel = currentDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 
   // Detalle del día seleccionado
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-20 lg:pb-0">
       {/* Controls */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2">
@@ -282,16 +362,47 @@ export default function Calendario() {
               Semana
             </button>
           </div>
-          <button onClick={() => { setEventoForm({ ...eventoForm, fecha: new Date().toISOString().split('T')[0] + 'T08:00' }); setModalOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">
-            <Plus className="w-4 h-4" /> Evento
-          </button>
+          
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
+            <select 
+              value={cuatrimestre}
+              onChange={(e: any) => setCuatrimestre(e.target.value)}
+              className="whitespace-nowrap px-4 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary-500 shadow-premium transition-all"
+            >
+              <option value="Todas">TODOS LOS CICLOS</option>
+              <option value="1er Cuatrimestre">1ER CUATRIMESTRE</option>
+              <option value="2do Cuatrimestre">2DO CUATRIMESTRE</option>
+            </select>
+
+            <button onClick={() => { setEventoForm({ ...eventoForm, fecha: new Date().toISOString().split('T')[0] + 'T08:00' }); setModalOpen(true); }}
+              className="whitespace-nowrap flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95">
+              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Nuevo</span> Evento
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        {view === 'month' ? renderMonthView() : renderWeekView()}
+      <div className="glass rounded-[2.5rem] p-4 overflow-hidden animate-fade-in">
+        {/* Desktop View */}
+        <div className="hidden lg:block">
+          {view === 'month' ? renderMonthView() : renderWeekView()}
+        </div>
+        
+        {/* Mobile View */}
+        <div className="lg:hidden">
+          {view === 'month' ? (
+            <div className="space-y-8">
+              <div className="bg-slate-50/50 p-2 rounded-[2rem]">
+                {renderMonthView()}
+              </div>
+              <div className="pt-6 border-t border-slate-100">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Próximos Eventos en {monthLabel.split(' ')[0]}</h4>
+                {renderMobileListView()}
+              </div>
+            </div>
+          ) : renderWeekView()}
+        </div>
       </div>
 
       {/* Detalle del día seleccionado */}

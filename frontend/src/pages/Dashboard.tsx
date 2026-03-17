@@ -12,8 +12,10 @@ import {
 } from 'lucide-react';
 import { dashboardAPI } from '../api';
 import { DashboardData } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +56,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-10">
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -63,6 +65,7 @@ export default function Dashboard() {
           value={estadisticas.materiasCursando}
           color="bg-primary-500"
           sub={`${estadisticas.materiasAprobadas} aprobadas de ${estadisticas.totalMaterias}`}
+          className="animate-fade-in animate-stagger-1"
         />
         <StatCard
           icon={<GraduationCap className="w-5 h-5" />}
@@ -70,6 +73,7 @@ export default function Dashboard() {
           value={estadisticas.promedioGeneral || '-.--'}
           color="bg-indigo-600"
           sub="Basado en finales y parciales"
+          className="animate-fade-in animate-stagger-2"
         />
         <StatCard
           icon={<CheckSquare className="w-5 h-5" />}
@@ -77,12 +81,13 @@ export default function Dashboard() {
           value={`${estadisticas.tareasEntregadas}/${estadisticas.totalTareas}`}
           color="bg-success"
           sub={`${estadisticas.totalTareas - estadisticas.tareasEntregadas} pendientes`}
+          className="animate-fade-in animate-stagger-3"
         />
         <StatCard
           icon={<Flame className="w-5 h-5 text-white" />}
           label="Racha de Estudio"
           value={`${estadisticas.rachaEstudio} días`}
-          color={estadisticas.rachaEstudio > 0 ? 'bg-orange-500' : 'bg-gray-400'}
+          color={estadisticas.rachaEstudio > 0 ? 'bg-orange-500' : 'bg-slate-400'}
           sub={
             estadisticas.rachaEstudio > 2
               ? '🔥 ¡Excelente ritmo!'
@@ -90,6 +95,7 @@ export default function Dashboard() {
               ? '👍 ¡A seguir así!'
               : 'Empieza hoy tu racha'
           }
+          className="animate-fade-in animate-stagger-4"
         />
         <StatCard
           icon={<FileText className="w-5 h-5" />}
@@ -97,6 +103,7 @@ export default function Dashboard() {
           value={examenesProximos.length}
           color="bg-warning"
           sub="En los próximos 7 días"
+          className="animate-fade-in animate-stagger-4"
         />
       </div>
 
@@ -115,7 +122,7 @@ export default function Dashboard() {
             </div>
             <button 
               className="bg-white/10 hover:bg-white/20 backdrop-blur-md px-6 py-2.5 rounded-full font-semibold transition-all border border-white/20"
-              onClick={() => window.location.href = `/materias?id=${data.proximaClase?.materiaId}`}
+              onClick={() => navigate(`/materia/${data.proximaClase?.materiaId}`)}
             >
               Ver detalles de cursada
             </button>
@@ -140,7 +147,9 @@ export default function Dashboard() {
               clasesHoy.map((clase, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/materia/${clase.materiaId}`)}
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-primary-100 hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300 cursor-pointer animate-fade-in"
+                  style={{ animationDelay: `${i * 0.1}s` }}
                 >
                   <div
                     className="w-1 h-12 rounded-full shrink-0"
@@ -173,7 +182,7 @@ export default function Dashboard() {
               examenesProximos.map((examen) => (
                 <div
                   key={examen.id}
-                  className="flex items-center gap-4 p-3 rounded-xl bg-gray-50 hover:bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 cursor-pointer"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-transparent hover:bg-white hover:border-warning-100 hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300 cursor-pointer animate-fade-in"
                 >
                   <div
                     className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0"
@@ -274,23 +283,27 @@ function StatCard({
   value,
   color,
   sub,
+  className = "",
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
   color: string;
   sub: string;
+  className?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 group hover:-translate-y-1 hover:shadow-xl hover:border-primary-100 transition-all duration-300 cursor-pointer">
-      <div className="flex items-center gap-3 mb-3">
-        <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+    <div className={`bg-white rounded-3xl border border-slate-100 shadow-premium p-6 group hover:-translate-y-1.5 hover:shadow-premium-hover hover:border-primary-200 transition-all duration-500 cursor-pointer overflow-hidden relative ${className}`}>
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-50 to-transparent rounded-bl-full -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <div className="flex items-center gap-3 mb-4 relative z-10">
+        <div className={`w-11 h-11 rounded-2xl ${color} flex items-center justify-center text-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg shadow-black/5`}>
           {icon}
         </div>
-        <p className="text-sm text-gray-500 font-medium">{label}</p>
+        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{label}</p>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-400 mt-1">{sub}</p>
+      <p className="text-3xl font-black text-slate-900 tracking-tight">{value}</p>
+      <p className="text-[11px] font-medium text-slate-400 mt-2">{sub}</p>
     </div>
   );
 }

@@ -48,7 +48,7 @@ router.get('/:id', async (req, res) => {
 // Crear examen
 router.post('/', async (req, res) => {
   try {
-    const { materiaId, fecha, tipo, aula, notas } = req.body;
+    const { materiaId, fecha, tipo, aula, notas, nota } = req.body;
     const examen = await prisma.examen.create({
       data: {
         materiaId,
@@ -56,6 +56,7 @@ router.post('/', async (req, res) => {
         tipo,
         aula,
         notas,
+        nota: nota !== undefined ? parseFloat(nota) : undefined,
       },
       include: { materia: { select: { id: true, nombre: true, color: true } } },
     });
@@ -68,7 +69,7 @@ router.post('/', async (req, res) => {
 // Actualizar examen
 router.put('/:id', async (req, res) => {
   try {
-    const { materiaId, fecha, tipo, aula, notas } = req.body;
+    const { materiaId, fecha, tipo, aula, notas, nota } = req.body;
     const examen = await prisma.examen.update({
       where: { id: parseInt(req.params.id) },
       data: {
@@ -77,6 +78,7 @@ router.put('/:id', async (req, res) => {
         tipo,
         aula,
         notas,
+        nota: nota !== undefined ? parseFloat(nota) : undefined,
       },
       include: { materia: { select: { id: true, nombre: true, color: true } } },
     });

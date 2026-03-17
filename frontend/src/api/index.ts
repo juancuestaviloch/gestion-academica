@@ -106,3 +106,15 @@ export const dashboardAPI = {
 export const notificacionesAPI = {
   getAll: () => fetchAPI<any[]>('/notificaciones'),
 };
+
+export const sesionesAPI = {
+  getAll: (materiaId?: number) => fetchAPI<any[]>(`/sesiones${materiaId ? `?materiaId=${materiaId}` : ''}`),
+  create: (data: { materiaId?: number; duracion: number }) => fetchAPI<any>('/sesiones', { method: 'POST', body: JSON.stringify(data) }),
+};
+export const flashcardsAPI = {
+  getAll: (materiaId?: number) => fetchAPI<any[]>(`/flashcards${materiaId ? `?materiaId=${materiaId}` : ''}`),
+  getPendientes: (materiaId?: number) => fetchAPI<any[]>(`/flashcards/pendientes${materiaId ? `?materiaId=${materiaId}` : ''}`),
+  create: (data: { materiaId: number; pregunta: string; respuesta: string }) => fetchAPI<any>('/flashcards', { method: 'POST', body: JSON.stringify(data) }),
+  repasar: (id: number, q: number) => fetchAPI<any>(`/flashcards/${id}/repasar`, { method: 'POST', body: JSON.stringify({ q }) }),
+  delete: (id: number) => fetchAPI<void>(`/flashcards/${id}`, { method: 'DELETE' }),
+};

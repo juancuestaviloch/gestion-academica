@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Clock, BookMarked, ChevronDown, ChevronUp, GraduationCap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { materiasAPI } from '../api';
 import { Materia } from '../types';
 import Modal from '../components/Modal';
@@ -14,6 +15,7 @@ const ESTADOS = ['Cursando', 'Aprobada', 'Pendiente'] as const;
 const FILTROS = ['Todas', 'Cursando', 'Pendiente', 'Aprobada'] as const;
 
 export default function Materias() {
+  const navigate = useNavigate();
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -161,17 +163,17 @@ export default function Materias() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <div className="flex items-center gap-3 text-sm text-gray-500">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> {cursandoCount} cursando</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500" /> {pendienteCount} pendientes</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500" /> {aprobadaCount} aprobadas</span>
+          <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+            <span className="flex items-center gap-2 px-2 py-1 rounded-lg bg-blue-50 text-blue-600"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> {cursandoCount} Cursando</span>
+            <span className="flex items-center gap-2 px-2 py-1 rounded-lg bg-amber-50 text-amber-600"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" /> {pendienteCount} Pendientes</span>
+            <span className="flex items-center gap-2 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" /> {aprobadaCount} Aprobadas</span>
           </div>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-medium text-sm hover:bg-primary-700 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-2xl font-bold text-sm hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           Nueva Materia
@@ -179,18 +181,18 @@ export default function Materias() {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap bg-slate-100 p-1 rounded-2xl w-fit">
         {FILTROS.map(f => (
           <button
             key={f}
             onClick={() => setFiltroEstado(f)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
               filtroEstado === f
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'bg-white text-gray-600 border border-gray-200 hover:border-primary-300 hover:text-primary-600'
+                ? 'bg-white text-slate-900 shadow-premium'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            {f}
+            {f.toUpperCase()}
           </button>
         ))}
       </div>
@@ -199,48 +201,52 @@ export default function Materias() {
       {sortedGroups.map(([key, groupMaterias]) => {
         const [anio, cuatrimestre] = key.split('|');
         return (
-          <div key={key} className="space-y-3">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-primary-600" />
-              <h3 className="font-bold text-gray-800">
-                {anio}° Año — {cuatrimestre}
-              </h3>
-              <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                {groupMaterias.length} materia{groupMaterias.length > 1 ? 's' : ''}
-              </span>
+          <div key={key} className="space-y-4 pt-4 animate-fade-in">
+            <div className="flex items-center gap-3 px-1">
+              <div className="w-10 h-10 rounded-2xl bg-primary-50 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-primary-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900 tracking-tight">
+                  {anio}° Año — <span className="text-primary-600">{cuatrimestre}</span>
+                </h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
+                  {groupMaterias.length} materia{groupMaterias.length > 1 ? 's' : ''} registradas
+                </p>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {groupMaterias.map((m) => (
                 <div
                   key={m.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:-translate-y-1 hover:shadow-lg hover:border-primary-100 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate(`/materia/${m.id}`)}
+                  className="bg-white rounded-[2rem] border border-slate-100 shadow-premium overflow-hidden group hover:-translate-y-1.5 hover:shadow-premium-hover transition-all duration-500 cursor-pointer flex flex-col"
                 >
-                  <div className="h-1.5" style={{ backgroundColor: m.color }} />
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-3">
+                  <div className="h-2 w-full" style={{ backgroundColor: m.color }} />
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">{m.nombre}</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">{m.profesor}</p>
+                        <h3 className="font-black text-slate-900 text-lg leading-tight group-hover:text-primary-600 transition-colors truncate">{m.nombre}</h3>
+                        <p className="text-sm font-medium text-slate-400 mt-1 flex items-center gap-1.5">
+                          <span className="w-1 h-3 bg-slate-200 rounded-full" /> {m.profesor}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1.5 ml-3">
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${estadoColors[m.estado]}`}>
-                          {m.estado}
-                        </span>
-                      </div>
+                      <span className={`shrink-0 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${estadoColors[m.estado]}`}>
+                        {m.estado}
+                      </span>
                     </div>
 
                     {/* Horarios */}
                     {m.horarios.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {m.horarios.map((h, i) => (
                           <span
                             key={i}
-                            className="flex items-center gap-1 text-[10px] text-gray-600 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100"
+                            className="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-100 group-hover:border-primary-100 transition-colors"
                           >
-                            <Clock className="w-2.5 h-2.5" />
+                            <Clock className="w-3 h-3 text-slate-400" />
                             {h.diaSemana.substring(0, 3)} {h.horaInicio}
-                            {h.aula && <span className="text-primary-600 font-medium ml-0.5">📍{h.aula}</span>}
-                            {h.tipo && <span className="text-gray-400 border-l border-gray-200 pl-1 ml-1">{h.tipo}</span>}
+                            {h.aula && <span className="text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded ml-1">📍{h.aula}</span>}
                           </span>
                         ))}
                       </div>
@@ -250,10 +256,10 @@ export default function Materias() {
                     {m.bibliografia.length > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setExpandedId(expandedId === m.id ? null : m.id); }}
-                        className="flex items-center gap-1 text-[10px] text-primary-600 hover:text-primary-800 font-medium mb-2"
+                        className="flex items-center gap-2 text-[10px] text-primary-600 hover:text-primary-800 font-bold uppercase tracking-widest mb-4 bg-primary-50 w-fit px-3 py-1.5 rounded-lg transition-all"
                       >
                         <BookMarked className="w-3 h-3" />
-                        {m.bibliografia.length} recurso(s)
+                        {m.bibliografia.length} RECURSOS
                         {expandedId === m.id ? <ChevronUp className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
                       </button>
                     )}
