@@ -11,6 +11,7 @@ router.get('/', async (_req, res) => {
       include: { 
         horarios: true, 
         bibliografia: true,
+        recursos: true,
         prerequisites: { select: { id: true, nombre: true } }
       },
       orderBy: { nombre: 'asc' },
@@ -29,6 +30,7 @@ router.get('/:id', async (req, res) => {
       include: {
         horarios: true,
         bibliografia: true,
+        recursos: { orderBy: { createdAt: 'desc' } },
         examenes: { orderBy: { fecha: 'asc' } },
         tareas: { orderBy: { fechaLimite: 'asc' } },
         asistencias: { orderBy: { fecha: 'desc' } },

@@ -103,7 +103,60 @@ export default function MateriaHub() {
             </div>
           </div>
 
-          {/* Sección de Videos y Clases */}
+          {/* Sección de Bibliografía y Recursos (Nuevo) */}
+          <div className="bg-white rounded-[32px] p-8 shadow-premium border border-black/5">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-emerald-50 rounded-xl">
+                  <BookOpen className="w-5 h-5 text-emerald-600" />
+                </div>
+                <h3 className="font-black text-slate-900">Bibliografía y Recursos</h3>
+              </div>
+              <button 
+                onClick={() => navigate('/finanzas')}
+                className="text-xs font-bold text-primary-600 hover:underline"
+              >
+                Gestionar Presupuesto
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {materia.recursos?.map((recurso: any) => (
+                <div key={recurso.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
+                        recurso.adquirido ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'
+                      }`}>
+                        {recurso.adquirido ? 'Adquirido' : 'Pendiente'}
+                      </span>
+                      <h4 className="font-bold text-slate-900 text-sm">{recurso.nombre}</h4>
+                    </div>
+                    <span className="text-xs font-bold text-slate-400">{recurso.progreso}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                      style={{ width: `${recurso.progreso}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+              {(!materia.recursos || materia.recursos.length === 0) && (
+                <div className="text-center py-6">
+                  <p className="text-sm text-slate-400 italic">No hay bibliografía registrada.</p>
+                  <button 
+                    onClick={() => navigate('/finanzas')}
+                    className="mt-2 text-xs font-bold text-primary-600"
+                  >
+                    + Agregar primer material
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sección de Videos y Clases (Original) */}
           <div className="bg-white rounded-[32px] p-8 shadow-premium border border-black/5">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-red-50 rounded-xl">

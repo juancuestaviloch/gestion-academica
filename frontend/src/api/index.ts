@@ -1,4 +1,4 @@
-import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia } from '../types';
+import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia, RecursoAcademico } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -117,4 +117,17 @@ export const flashcardsAPI = {
   create: (data: { materiaId: number; pregunta: string; respuesta: string }) => fetchAPI<any>('/flashcards', { method: 'POST', body: JSON.stringify(data) }),
   repasar: (id: number, q: number) => fetchAPI<any>(`/flashcards/${id}/repasar`, { method: 'POST', body: JSON.stringify({ q }) }),
   delete: (id: number) => fetchAPI<void>(`/flashcards/${id}`, { method: 'DELETE' }),
+};
+
+export const recursosAPI = {
+  getAll: (params?: { materiaId?: number; adquirido?: boolean }) => {
+    const query = new URLSearchParams();
+    if (params?.materiaId) query.append('materiaId', params.materiaId.toString());
+    if (params?.adquirido !== undefined) query.append('adquirido', params.adquirido.toString());
+    return fetchAPI<RecursoAcademico[]>(`/recursos?${query.toString()}`);
+  },
+  getStats: () => fetchAPI<any>('/recursos/stats'),
+  create: (data: any) => fetchAPI<RecursoAcademico>('/recursos', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: any) => fetchAPI<RecursoAcademico>(`/recursos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => fetchAPI<void>(`/recursos/${id}`, { method: 'DELETE' }),
 };

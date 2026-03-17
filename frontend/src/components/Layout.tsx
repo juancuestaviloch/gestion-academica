@@ -20,6 +20,7 @@ import {
   Zap,
   TrendingUp,
   LayoutGrid,
+  Wallet,
 } from 'lucide-react';
 
 const navItems = [
@@ -36,6 +37,7 @@ const navItems = [
   { path: '/metas', label: 'Metas', icon: Target },
   { path: '/roadmap', label: 'Proyección', icon: TrendingUp },
   { path: '/plan', label: 'Plan de Estudios', icon: LayoutGrid },
+  { path: '/finanzas', label: 'Finanzas', icon: Wallet },
   { path: '/focus', label: 'Focus', icon: Zap },
 ];
 

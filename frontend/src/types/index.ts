@@ -28,6 +28,7 @@ export interface Materia {
   updatedAt: string;
   horarios: Horario[];
   bibliografia: Bibliografia[];
+  recursos?: RecursoAcademico[];
   prerequisites?: { id: number; nombre: string }[];
   unlockedBy?: { id: number; nombre: string }[];
 }
@@ -169,4 +170,18 @@ export interface Video {
   visto: boolean;
   createdAt: string;
   materia: { id: number; nombre: string; color: string };
+}
+
+export interface RecursoAcademico {
+  id: number;
+  materiaId: number;
+  nombre: string;
+  tipo: 'LIBRO' | 'DOSSIER' | 'DIGITAL' | 'IMPRESION' | 'OTRO';
+  costo: number;
+  adquirido: boolean;
+  progreso: number;
+  url?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  materia?: { nombre: string; color: string };
 }

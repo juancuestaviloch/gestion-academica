@@ -14,6 +14,7 @@ const Tareas = lazy(() => import('./pages/Tareas'));
 const Asistencia = lazy(() => import('./pages/Asistencia'));
 const Apuntes = lazy(() => import('./pages/Apuntes'));
 const Videos = lazy(() => import('./pages/Videos'));
+const Finanzas = lazy(() => import('./pages/Finanzas'));
 const Metas = lazy(() => import('./pages/Metas'));
 const FocusMode = lazy(() => import('./pages/FocusMode'));
 const DegreeNavigator = lazy(() => import('./pages/DegreeNavigator'));
@@ -46,6 +47,7 @@ function App() {
             <Route path="/asistencia" element={<Asistencia />} />
             <Route path="/apuntes" element={<Apuntes />} />
             <Route path="/videos" element={<Videos />} />
+            <Route path="/finanzas" element={<Finanzas />} />
             <Route path="/metas" element={<Metas />} />
             <Route path="/focus" element={<FocusMode />} />
             <Route path="/plan" element={<DegreeNavigator />} />

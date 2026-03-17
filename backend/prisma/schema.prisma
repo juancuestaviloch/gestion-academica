@@ -27,6 +27,7 @@ model Materia {
   videos       Video[]
   sesiones     SesionEstudio[]
   flashcards   Flashcard[]
+  recursos     RecursoAcademico[]
   
   // Correlatividades
   prerequisites Materia[]       @relation("Correlatividades")
@@ -150,4 +151,18 @@ model Flashcard {
   materia         Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model RecursoAcademico {
+  id        Int      @id @default(autoincrement())
+  materiaId Int
+  nombre    String
+  tipo      String   @default("OTRO") // LIBRO | DOSSIER | DIGITAL | IMPRESION | OTRO
+  costo     Float    @default(0.0)
+  adquirido Boolean  @default(false)
+  progreso  Int      @default(0) // 0-100
+  url       String?
+  materia   Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
