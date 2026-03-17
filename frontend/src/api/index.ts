@@ -1,4 +1,4 @@
-import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia, RecursoAcademico } from '../types';
+import { Materia, Examen, Tarea, AsistenciaResumen, AsistenciaDetalle, Apunte, Evento, Meta, DashboardData, Video, Asistencia, RecursoAcademico, Calculo } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -130,4 +130,10 @@ export const recursosAPI = {
   create: (data: any) => fetchAPI<RecursoAcademico>('/recursos', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: any) => fetchAPI<RecursoAcademico>(`/recursos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => fetchAPI<void>(`/recursos/${id}`, { method: 'DELETE' }),
+};
+
+export const herramientasAPI = {
+  getHistorial: () => fetchAPI<Calculo[]>('/herramientas'),
+  guardarCalculo: (data: Partial<Calculo>) => fetchAPI<Calculo>('/herramientas', { method: 'POST', body: JSON.stringify(data) }),
+  deleteCalculo: (id: number) => fetchAPI<void>(`/herramientas/${id}`, { method: 'DELETE' }),
 };

@@ -185,3 +185,13 @@ export interface RecursoAcademico {
   updatedAt: string;
   materia?: { nombre: string; color: string };
 }
+
+export interface Calculo {
+  id: number;
+  nombre: string;
+  tipo: 'FINANCIERA' | 'ESTADISTICA' | 'MATEMATICA';
+  formula: string;
+  entradas: string; // JSON string
+  resultado: number;
+  createdAt: string;
+}

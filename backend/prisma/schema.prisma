@@ -166,3 +166,13 @@ model RecursoAcademico {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Calculo {
+  id        Int      @id @default(autoincrement())
+  nombre    String // Ej: "VAN Proyecto A"
+  tipo      String // FINANCIERA | ESTADISTICA | MATEMATICA
+  formula   String // Nombre de la fórmula usada
+  entradas  String // JSON stringified inputs
+  resultado Float
+  createdAt DateTime @default(now())
+}
